@@ -1,0 +1,4 @@
+- [x] Elkészíteni a hosszú, reszponzív Bioker Kozmetika oldalt minden kért szakasszal.
+- [x] Az ismeretlen üzleti adatokat egy helyen, egyértelműen jelölni; a képeket és idézeteket illusztrációként kezelni.
+- [x] Kapcsolati űrlap, képnagyítás, véleménylapozó és jogi oldalak felülete.
+- [ ] Valódi árak, portré, referenciák, vendégvélemények, kapcsolati/jogi adatok pótlása — a megrendelő adataira vár.
