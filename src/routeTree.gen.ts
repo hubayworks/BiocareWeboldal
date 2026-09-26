@@ -10,33 +10,53 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as AdatvedelemRouteImport } from './routes/adatvedelem'
+import { Route as ImpresszumRouteImport } from './routes/impresszum'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdatvedelemRoute = AdatvedelemRouteImport.update({
+  id: '/adatvedelem',
+  path: '/adatvedelem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImpresszumRoute = ImpresszumRouteImport.update({
+  id: '/impresszum',
+  path: '/impresszum',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/adatvedelem': typeof AdatvedelemRoute
+  '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/adatvedelem': typeof AdatvedelemRoute
+  '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/adatvedelem': typeof AdatvedelemRoute
+  '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths: '/' | '/adatvedelem' | '/impresszum'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to: '/' | '/adatvedelem' | '/impresszum'
+  id: '__root__' | '/' | '/adatvedelem' | '/impresszum'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdatvedelemRoute: typeof AdatvedelemRoute
+  ImpresszumRoute: typeof ImpresszumRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -48,11 +68,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/adatvedelem': {
+      id: '/adatvedelem'
+      path: '/adatvedelem'
+      fullPath: '/adatvedelem'
+      preLoaderRoute: typeof AdatvedelemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/impresszum': {
+      id: '/impresszum'
+      path: '/impresszum'
+      fullPath: '/impresszum'
+      preLoaderRoute: typeof ImpresszumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdatvedelemRoute: AdatvedelemRoute,
+  ImpresszumRoute: ImpresszumRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
