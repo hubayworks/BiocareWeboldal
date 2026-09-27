@@ -8,8 +8,8 @@ export const site = {
   address: "7622 Pécs, Jókai utca 30.",
   website: "https://biocarekozmetikapecs.hu/",
   instagram: "https://www.instagram.com/biocarekozm/",
-  facebook: null as string | null,
-  tiktok: null as string | null,
+  facebook: "https://www.facebook.com/profile.php?id=100094770294361&locale=hu_HU",
+  tiktok: "https://www.tiktok.com/@biocarekozmetika" as string | null,
   services: [
     { number: "01", title: "Arckezelések", description: "Egy kis idő, ami csak rólad és a bőröd igényeiről szól. Személyre szabott gondoskodás minden alkalommal.", detail: "Személyre szabott ápolás" },
     { number: "02", title: "Bőrmegújító rituálék", description: "Tudatos törődés, finom érintések és egy nyugodt pillanat a mindennapok forgatagában.", detail: "Feltöltődés kívül-belül" },

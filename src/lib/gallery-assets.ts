@@ -1,5 +1,5 @@
 const imageModules = import.meta.glob(
-  "/src/assets/Kozmetika Fotók/*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP}",
+  "/src/assets/Kozmetika Fotók /*.{jpg,JPG,jpeg,JPEG,png,PNG,webp,WEBP}",
   { eager: true, import: "default", query: "?url" },
 ) as Record<string, string>;
 
