@@ -15,7 +15,7 @@
   --color-destructive: var(--destructive); --color-destructive-foreground: var(--destructive-foreground);
   --color-border: var(--border); --color-input: var(--input); --color-ring: var(--ring);
   --color-hero-foreground: var(--hero-foreground); --color-footer: var(--footer); --color-footer-foreground: var(--footer-foreground); --color-overlay: var(--overlay);
-  --font-display: "Manrope", sans-serif; --font-sans: "DM Sans", sans-serif;
+  --font-display: "Cormorant Garamond", serif; --font-hero-display: "Cormorant Garamond", serif; --font-sans: "Cormorant Garamond", serif;
 }
 :root {
   --background: oklch(0.985 0.008 89); --foreground: oklch(0.27 0.046 148);
@@ -50,6 +50,7 @@
 }
 @layer components {
   .section-title { font-family: var(--font-display); font-size: clamp(2.7rem, 4.8vw, 5rem); line-height: 1.11; font-weight: 500; }
+  .hero-title { font-family: var(--font-hero-display); font-weight: 500; letter-spacing: 0; }
   .section-title em { font-weight: 400; }
   .eyebrow { color: var(--color-primary); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .2em; }
   .glass-card { background: color-mix(in oklch, var(--color-card) 80%, transparent); backdrop-filter: blur(20px); }
@@ -59,8 +60,8 @@
   .form-input:focus { border-color: var(--color-primary-foreground); }
   .form-input option { color: var(--color-foreground); background: var(--color-background); }
 }
-.bg-hero-shade { background: linear-gradient(90deg, oklch(0.16 0.025 143 / 89%) 0%, oklch(0.18 0.025 143 / 68%) 36%, oklch(0.18 0.025 143 / 7%) 100%); }
+.bg-hero-shade { background: linear-gradient(90deg, oklch(0.16 0.025 143 / 70%) 0%, oklch(0.18 0.025 143 / 48%) 36%, oklch(0.18 0.025 143 / 4%) 100%); }
 @keyframes appear { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 .animate-appear { animation: appear .6s ease-out both; }
-@media (max-width: 767px) { .bg-hero-shade { background: linear-gradient(90deg, oklch(0.16 0.025 143 / 86%), oklch(0.18 0.025 143 / 48%)); } }
+@media (max-width: 767px) { .bg-hero-shade { background: linear-gradient(90deg, oklch(0.16 0.025 143 / 68%), oklch(0.18 0.025 143 / 38%)); } }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .animate-appear { animation: none; } *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }

@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdatvedelemRouteImport } from './routes/adatvedelem'
+import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as ImpresszumRouteImport } from './routes/impresszum'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const AdatvedelemRoute = AdatvedelemRouteImport.update({
   path: '/adatvedelem',
   getParentRoute: () => rootRouteImport,
 } as any)
+const GaleriaRoute = GaleriaRouteImport.update({
+  id: '/galeria',
+  path: '/galeria',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImpresszumRoute = ImpresszumRouteImport.update({
   id: '/impresszum',
   path: '/impresszum',
@@ -32,30 +38,34 @@ const ImpresszumRoute = ImpresszumRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/galeria': typeof GaleriaRoute
   '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/galeria': typeof GaleriaRoute
   '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/galeria': typeof GaleriaRoute
   '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/adatvedelem' | '/impresszum'
+  fullPaths: '/' | '/adatvedelem' | '/galeria' | '/impresszum'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/adatvedelem' | '/impresszum'
-  id: '__root__' | '/' | '/adatvedelem' | '/impresszum'
+  to: '/' | '/adatvedelem' | '/galeria' | '/impresszum'
+  id: '__root__' | '/' | '/adatvedelem' | '/galeria' | '/impresszum'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdatvedelemRoute: typeof AdatvedelemRoute
+  GaleriaRoute: typeof GaleriaRoute
   ImpresszumRoute: typeof ImpresszumRoute
 }
 
@@ -75,6 +85,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdatvedelemRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/galeria': {
+      id: '/galeria'
+      path: '/galeria'
+      fullPath: '/galeria'
+      preLoaderRoute: typeof GaleriaRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/impresszum': {
       id: '/impresszum'
       path: '/impresszum'
@@ -88,6 +105,7 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdatvedelemRoute: AdatvedelemRoute,
+  GaleriaRoute: GaleriaRoute,
   ImpresszumRoute: ImpresszumRoute,
 }
 export const routeTree = rootRouteImport
