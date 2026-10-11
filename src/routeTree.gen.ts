@@ -17,6 +17,8 @@ import { Route as ImpresszumRouteImport } from './routes/impresszum'
 import { Route as ReviewJovahagyasRouteImport } from './routes/review-jovahagyas'
 import { Route as VelemenyIrasaRouteImport } from './routes/velemeny-irasa'
 import { Route as VelemenyekRouteImport } from './routes/velemenyek'
+import { Route as ApiReviewsRouteImport } from './routes/api.reviews'
+import { Route as ApiReviewsApprovalRouteImport } from './routes/api.reviews.approval'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -58,6 +60,16 @@ const VelemenyekRoute = VelemenyekRouteImport.update({
   path: '/velemenyek',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiReviewsRoute = ApiReviewsRouteImport.update({
+  id: '/api/reviews',
+  path: '/api/reviews',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiReviewsApprovalRoute = ApiReviewsApprovalRouteImport.update({
+  id: '/approval',
+  path: '/approval',
+  getParentRoute: () => ApiReviewsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -68,6 +80,8 @@ export interface FileRoutesByFullPath {
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
+  '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -78,6 +92,8 @@ export interface FileRoutesByTo {
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
+  '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -89,6 +105,8 @@ export interface FileRoutesById {
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
+  '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -101,6 +119,8 @@ export interface FileRouteTypes {
     | '/review-jovahagyas'
     | '/velemeny-irasa'
     | '/velemenyek'
+    | '/api/reviews'
+    | '/api/reviews/approval'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -111,6 +131,8 @@ export interface FileRouteTypes {
     | '/review-jovahagyas'
     | '/velemeny-irasa'
     | '/velemenyek'
+    | '/api/reviews'
+    | '/api/reviews/approval'
   id:
     | '__root__'
     | '/'
@@ -121,6 +143,8 @@ export interface FileRouteTypes {
     | '/review-jovahagyas'
     | '/velemeny-irasa'
     | '/velemenyek'
+    | '/api/reviews'
+    | '/api/reviews/approval'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -132,6 +156,7 @@ export interface RootRouteChildren {
   ReviewJovahagyasRoute: typeof ReviewJovahagyasRoute
   VelemenyIrasaRoute: typeof VelemenyIrasaRoute
   VelemenyekRoute: typeof VelemenyekRoute
+  ApiReviewsRoute: typeof ApiReviewsRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -192,8 +217,34 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VelemenyekRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/reviews': {
+      id: '/api/reviews'
+      path: '/api/reviews'
+      fullPath: '/api/reviews'
+      preLoaderRoute: typeof ApiReviewsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/reviews/approval': {
+      id: '/api/reviews/approval'
+      path: '/approval'
+      fullPath: '/api/reviews/approval'
+      preLoaderRoute: typeof ApiReviewsApprovalRouteImport
+      parentRoute: typeof ApiReviewsRoute
+    }
   }
 }
+
+interface ApiReviewsRouteChildren {
+  ApiReviewsApprovalRoute: typeof ApiReviewsApprovalRoute
+}
+
+const ApiReviewsRouteChildren: ApiReviewsRouteChildren = {
+  ApiReviewsApprovalRoute: ApiReviewsApprovalRoute,
+}
+
+const ApiReviewsRouteWithChildren = ApiReviewsRoute._addFileChildren(
+  ApiReviewsRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
@@ -204,6 +255,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewJovahagyasRoute: ReviewJovahagyasRoute,
   VelemenyIrasaRoute: VelemenyIrasaRoute,
   VelemenyekRoute: VelemenyekRoute,
+  ApiReviewsRoute: ApiReviewsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

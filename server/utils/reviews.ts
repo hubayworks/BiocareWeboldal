@@ -1,8 +1,13 @@
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import mysql from "mysql2/promise";
 import nodemailer from "nodemailer";
-import type { H3Event } from "h3";
-import { createError, getRequestHeader, getRequestIP, getRequestURL } from "h3";
+
+export class ReviewApiError extends Error {
+  constructor(public statusCode: number, message: string) {
+    super(message);
+    this.name = "ReviewApiError";
+  }
+}
 
 export type ReviewRecord = {
   id: string;
@@ -22,7 +27,7 @@ function getPool() {
   const required = ["DB_HOST", "DB_USER", "DB_PASSWORD", "DB_NAME"] as const;
   const missing = required.filter((name) => !process.env[name]);
   if (missing.length) {
-    throw createError({ statusCode: 503, statusMessage: "A véleményküldés még nincs bekapcsolva." });
+    throw new ReviewApiError(503, "A véleményküldés még nincs bekapcsolva.");
   }
   if (!pool) {
     pool = mysql.createPool({
@@ -67,40 +72,40 @@ export async function ensureReviewSchema() {
   await schemaReady;
 }
 
-export function assertSameOrigin(event: H3Event) {
-  const origin = getRequestHeader(event, "origin");
-  if (!origin) throw createError({ statusCode: 403, statusMessage: "Érvénytelen kérés." });
+export function assertSameOrigin(request: Request) {
+  const origin = request.headers.get("origin");
+  if (!origin) throw new ReviewApiError(403, "Érvénytelen kérés.");
   let originHost = "";
   try { originHost = new URL(origin).host; } catch { /* handled below */ }
-  if (originHost !== getRequestURL(event).host) {
-    throw createError({ statusCode: 403, statusMessage: "Érvénytelen kérés." });
+  if (originHost !== new URL(request.url).host) {
+    throw new ReviewApiError(403, "Érvénytelen kérés.");
   }
 }
 
 const recentSubmissions = new Map<string, number[]>();
 
-export function enforceReviewRateLimit(event: H3Event) {
-  const ip = getRequestIP(event, { xForwardedFor: true }) || "unknown";
+export function enforceReviewRateLimit(request: Request) {
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
   const now = Date.now();
   const recent = (recentSubmissions.get(ip) ?? []).filter((time) => now - time < 15 * 60_000);
   if (recent.length >= 3) {
-    throw createError({ statusCode: 429, statusMessage: "Most túl sok értékelést küldtél. Próbáld újra később." });
+    throw new ReviewApiError(429, "Most túl sok értékelést küldtél. Próbáld újra később.");
   }
   recent.push(now);
   recentSubmissions.set(ip, recent);
 }
 
 export function validateReviewInput(input: unknown): ReviewInput {
-  if (!input || typeof input !== "object") throw createError({ statusCode: 400, statusMessage: "Ellenőrizd a kitöltött mezőket." });
+  if (!input || typeof input !== "object") throw new ReviewApiError(400, "Ellenőrizd a kitöltött mezőket.");
   const value = input as Record<string, unknown>;
   const name = typeof value.name === "string" ? value.name.trim() : "";
   const review = typeof value.review === "string" ? value.review.trim() : "";
   const rating = Number(value.rating);
   if (typeof value.website === "string" && value.website.trim()) {
-    throw createError({ statusCode: 400, statusMessage: "A beküldés nem sikerült." });
+    throw new ReviewApiError(400, "A beküldés nem sikerült.");
   }
   if (name.length < 2 || name.length > 80 || review.length < 10 || review.length > 2000 || !Number.isInteger(rating) || rating < 1 || rating > 5 || value.consent !== true) {
-    throw createError({ statusCode: 400, statusMessage: "Töltsd ki az összes mezőt, és fogadd el a közzétételi hozzájárulást." });
+    throw new ReviewApiError(400, "Töltsd ki az összes mezőt, és fogadd el a közzétételi hozzájárulást.");
   }
   return { name, review, rating, consent: true };
 }
@@ -108,7 +113,7 @@ export function validateReviewInput(input: unknown): ReviewInput {
 function approvalTransport() {
   const { SMTP_HOST, SMTP_USER, SMTP_PASSWORD } = process.env;
   if (!SMTP_HOST || !SMTP_USER || !SMTP_PASSWORD) {
-    throw createError({ statusCode: 503, statusMessage: "Az e-mailes értesítés beállítása még hiányzik." });
+    throw new ReviewApiError(503, "Az e-mailes értesítés beállítása még hiányzik.");
   }
   const port = Number(process.env.SMTP_PORT || 587);
   return {
