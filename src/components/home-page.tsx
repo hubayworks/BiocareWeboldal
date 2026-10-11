@@ -195,13 +195,13 @@ function Hero() {
             <br />
             <em className="font-normal text-accent">Egy kis idő önmagadra.</em>
           </h1>
-          <div className="mt-8 flex max-w-4xl flex-wrap items-center gap-3 sm:gap-4">
-            <a href="#arlista" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#F4EBDD]/70 bg-[#F4EBDD]/90 px-4 py-2 text-xs font-semibold text-[#35432E] shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#FFFDF7] sm:px-5 md:text-sm">
+          <div className="mt-8 flex max-w-4xl flex-wrap items-center gap-3 sm:gap-4 md:flex-nowrap">
+            <a href="#arlista" className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#F4EBDD]/40 bg-[#F4EBDD]/45 px-4 py-2 text-xs font-semibold text-[#35432E] backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#F4EBDD]/65 sm:px-5 md:text-sm">
               Árlista <ArrowDownRight size={15} aria-hidden="true" />
             </a>
             <a
               href="#szolgaltatasok"
-              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#71845E] bg-[#71845E]/95 px-4 py-2 text-xs font-semibold text-white shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#62764F] sm:px-5 md:text-sm"
+              className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#71845E] bg-[#71845E]/95 px-4 py-2 text-xs font-semibold text-white shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#62764F] sm:px-5 md:text-sm"
             >
               Szolgáltatások <ArrowDownRight size={17} aria-hidden="true" />
             </a>
