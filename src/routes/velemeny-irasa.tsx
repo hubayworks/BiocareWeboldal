@@ -26,8 +26,8 @@ function ReviewFormPage() {
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({ name, rating, review, consent: permission, website }),
       });
-      const result = await response.json().catch(() => ({})) as { message?: string };
-      if (!response.ok) throw new Error(result.message || "A beküldés most nem sikerült. Próbáld újra később.");
+      const result = await response.json().catch(() => ({})) as { error?: string };
+      if (!response.ok) throw new Error(result.error || "A beküldés most nem sikerült. Próbáld újra később.");
       setSubmitted(true);
     } catch (submissionError) {
       setError(submissionError instanceof Error ? submissionError.message : "A beküldés most nem sikerült. Próbáld újra később.");

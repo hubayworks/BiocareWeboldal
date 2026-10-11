@@ -9,7 +9,7 @@ import {
 function errorResponse(error: unknown) {
   const status = error instanceof ReviewApiError ? error.statusCode : 500;
   if (status >= 500) console.error("Review approval API request failed", error);
-  const message = error instanceof Error ? error.message : "A kérés most nem sikerült.";
+  const message = status < 500 && error instanceof Error ? error.message : "A kérés most nem sikerült.";
   return Response.json({ error: message }, { status, headers: { "Cache-Control": "no-store" } });
 }
 
@@ -32,7 +32,12 @@ export const Route = createFileRoute("/api/reviews/approval")({
       POST: async ({ request }) => {
         try {
           assertSameOrigin(request);
-          const body = await request.json() as { token?: unknown; action?: unknown };
+          let body: { token?: unknown; action?: unknown };
+          try {
+            body = await request.json() as { token?: unknown; action?: unknown };
+          } catch {
+            throw new ReviewApiError(400, "A kérés nem értelmezhető.");
+          }
           const token = typeof body?.token === "string" ? body.token : "";
           const action = body?.action;
           if (token.length < 32 || token.length > 128 || !["approve", "archive", "delete"].includes(String(action))) {
