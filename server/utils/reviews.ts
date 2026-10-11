@@ -20,6 +20,12 @@ export type ReviewRecord = {
 
 export type ReviewAdminStatus = "published" | "archived" | "deleted";
 export type ReviewAdminRecord = ReviewRecord & { status: ReviewAdminStatus; deletedAt: string | null };
+export type ReviewIntegrationSettings = { googleUrl: string; facebookUrl: string; instagramUrl: string };
+export type ReviewCustomer = { id: string; email: string; name: string; phone: string };
+export type ReviewCustomerRecord = Omit<ReviewAdminRecord, "status"> & { status: "pending" | ReviewAdminStatus };
+export type CustomerGiftRequest = { id: string; kind: string; details: string; status: "requested" | "contacted" | "completed" | "cancelled"; createdAt: string };
+export type AdminCustomerRecord = { id: string; name: string; email: string; phone: string; createdAt: string; reviewCount: number; giftRequestCount: number };
+export type AdminDashboard = { users: AdminCustomerRecord[]; giftRequests: Array<CustomerGiftRequest & { customerName: string; customerEmail: string; customerPhone: string }>; counts: { users: number; reviews: number; pendingReviews: number; publishedReviews: number; giftRequests: number } };
 
 type ReviewInput = { name: string; rating: number; review: string; consent: boolean; website?: string };
 
@@ -95,12 +101,73 @@ export async function ensureReviewSchema() {
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
       `);
       await db.query(`
+        CREATE TABLE IF NOT EXISTS biocare_review_customers (
+          id CHAR(36) NOT NULL PRIMARY KEY,
+          email VARCHAR(254) NOT NULL UNIQUE,
+          display_name VARCHAR(80) NOT NULL,
+          phone VARCHAR(40) NOT NULL DEFAULT '',
+          email_verified_at DATETIME NULL,
+          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS biocare_review_customer_tokens (
+          token_hash CHAR(64) NOT NULL PRIMARY KEY,
+          email VARCHAR(254) NOT NULL,
+          display_name VARCHAR(80) NOT NULL,
+          phone VARCHAR(40) NOT NULL DEFAULT '',
+          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          expires_at DATETIME NOT NULL,
+          used_at DATETIME NULL,
+          KEY idx_customer_token_expiry (expires_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+      const [customerPhoneColumns] = await db.query<mysql.RowDataPacket[]>("SHOW COLUMNS FROM biocare_review_customers LIKE 'phone'");
+      if (customerPhoneColumns.length === 0) await db.query("ALTER TABLE biocare_review_customers ADD COLUMN phone VARCHAR(40) NOT NULL DEFAULT ''");
+      const [customerTokenPhoneColumns] = await db.query<mysql.RowDataPacket[]>("SHOW COLUMNS FROM biocare_review_customer_tokens LIKE 'phone'");
+      if (customerTokenPhoneColumns.length === 0) await db.query("ALTER TABLE biocare_review_customer_tokens ADD COLUMN phone VARCHAR(40) NOT NULL DEFAULT ''");
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS biocare_review_customer_sessions (
+          token_hash CHAR(64) NOT NULL PRIMARY KEY,
+          customer_id CHAR(36) NOT NULL,
+          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          expires_at DATETIME NOT NULL,
+          KEY idx_customer_session_expiry (expires_at),
+          KEY idx_customer_session_owner (customer_id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS biocare_gift_requests (
+          id CHAR(36) NOT NULL PRIMARY KEY,
+          customer_id CHAR(36) NOT NULL,
+          request_kind VARCHAR(40) NOT NULL,
+          details VARCHAR(1000) NOT NULL,
+          status VARCHAR(20) NOT NULL DEFAULT 'requested',
+          created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+          KEY idx_gift_request_customer (customer_id, created_at),
+          KEY idx_gift_request_status (status, created_at)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+      const [accountColumns] = await db.query<mysql.RowDataPacket[]>("SHOW COLUMNS FROM biocare_reviews LIKE 'customer_id'");
+      if (accountColumns.length === 0) await db.query("ALTER TABLE biocare_reviews ADD COLUMN customer_id CHAR(36) NULL, ADD KEY idx_review_customer (customer_id, created_at)");
+      await db.query(`
         CREATE TABLE IF NOT EXISTS biocare_review_admin_settings (
           id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
           admin_email VARCHAR(254) NOT NULL,
           welcome_sent_email VARCHAR(254) NULL
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
       `);
+      await db.query(`
+        CREATE TABLE IF NOT EXISTS biocare_review_integrations (
+          id TINYINT UNSIGNED NOT NULL PRIMARY KEY,
+          google_url VARCHAR(2048) NOT NULL DEFAULT '',
+          facebook_url VARCHAR(2048) NOT NULL DEFAULT '',
+          instagram_url VARCHAR(2048) NOT NULL DEFAULT '',
+          updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+      `);
+      await db.execute("INSERT IGNORE INTO biocare_review_integrations (id, google_url, facebook_url, instagram_url) VALUES (1, '', '', '')");
       const email = currentAdminEmail();
       await db.execute("INSERT IGNORE INTO biocare_review_admin_settings (id, admin_email, welcome_sent_email) VALUES (1, ?, ?)", [email, email]);
     }).catch((error) => {
@@ -170,7 +237,9 @@ function adminTransport() {
 }
 
 const adminCookie = "biocare_review_admin";
+const customerCookie = "biocare_review_customer";
 const adminLoginRequests = new Map<string, number[]>();
+const customerLoginRequests = new Map<string, number[]>();
 let adminEmailSync: Promise<boolean> | undefined;
 
 function sha256(value: string) { return createHash("sha256").update(value).digest("hex"); }
@@ -204,6 +273,163 @@ export async function requestReviewAdminAccess(request: Request) {
     text: `Szia! Ez a tesztlevél a BioCare adminpanel elérését mutatja be. Az Adminpanel megnyitása hivatkozás közvetlenül beléptet a véleménykezelőbe. A hivatkozás egyszer használható, és 20 percig érvényes: ${loginUrl}\n\nHa nem te kérted ezt a tesztet, hagyd figyelmen kívül ezt az e-mailt.`,
     html: `<main style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#283126"><p>Szia!</p><h1>BioCare adminpanel – teszt</h1><p>Ez a tesztlevél az adminpanel elérését mutatja be. Az alábbi gomb közvetlenül megnyitja a véleménykezelőt és beléptet.</p><p><a href="${escapeHtml(loginUrl)}" style="display:inline-block;padding:14px 20px;border-radius:24px;background:#71845e;color:white;text-decoration:none;font-weight:bold">Adminpanel megnyitása</a></p><p>A hivatkozás az admin postafiókhoz készül, egyszer használható, és 20 percig érvényes.</p><p>Ha nem te kérted ezt a tesztet, hagyd figyelmen kívül ezt az e-mailt.</p></main>`,
   });
+}
+
+export async function requestReviewCustomerAccess(request: Request, rawEmail: unknown, rawName: unknown, rawPhone: unknown) {
+  await ensureReviewSchema();
+  const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
+  const name = typeof rawName === "string" ? rawName.trim() : "";
+  const phone = typeof rawPhone === "string" ? rawPhone.trim() : "";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || name.length < 2 || name.length > 80 || phone.replace(/[\s()+.-]/g, "").length < 7 || phone.length > 40) {
+    throw new ReviewApiError(400, "Adj meg egy érvényes nevet, e-mail-címet és telefonszámot.");
+  }
+  if (email === currentAdminEmail().toLowerCase()) throw new ReviewApiError(403, "Ez a cím az adminfelülethez van fenntartva. Az ügyfélfiókhoz használj másik e-mail-címet.");
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const now = Date.now();
+  const recent = (customerLoginRequests.get(ip) ?? []).filter((time) => now - time < 15 * 60_000);
+  if (recent.length >= 3) throw new ReviewApiError(429, "Most túl sok belépési linket kértél. Próbáld újra később.");
+  recent.push(now);
+  customerLoginRequests.set(ip, recent);
+
+  const token = randomBytes(32).toString("base64url");
+  const expires = new Date(now + 20 * 60_000);
+  await getPool().execute("INSERT INTO biocare_review_customer_tokens (token_hash, email, display_name, phone, expires_at) VALUES (?, ?, ?, ?, ?)", [sha256(token), email, name, phone, expires]);
+  const baseUrl = (process.env.APP_BASE_URL || new URL(request.url).origin).replace(/\/$/, "");
+  const loginUrl = `${baseUrl}/fiok?token=${encodeURIComponent(token)}`;
+  await adminTransport().sendMail({
+    to: email,
+    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    subject: "BioCare-fiók belépési link",
+    text: `Szia ${name}!\n\nA BioCare-fiókod létrehozásához vagy megnyitásához kattints a linkre: ${loginUrl}\n\nA link egyszer használható és 20 percig érvényes. Ha nem te kérted, hagyd figyelmen kívül ezt az e-mailt.`,
+    html: `<main style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#283126"><p>Szia ${escapeHtml(name)}!</p><h1>BioCare-fiók</h1><p>A fiókod létrehozásához vagy megnyitásához kattints az alábbi gombra.</p><p><a href="${escapeHtml(loginUrl)}" style="display:inline-block;padding:14px 20px;border-radius:24px;background:#71845e;color:white;text-decoration:none;font-weight:bold">Belépés a fiókomba</a></p><p>A link egyszer használható és 20 percig érvényes. Ha nem te kérted, hagyd figyelmen kívül ezt az e-mailt.</p></main>`,
+  });
+}
+
+export async function createReviewCustomerSession(token: string): Promise<{ session: string; customer: ReviewCustomer } | null> {
+  await ensureReviewSchema();
+  if (token.length < 32 || token.length > 128) return null;
+  const db = getPool();
+  const hash = sha256(token);
+  const [claim] = await db.execute<mysql.ResultSetHeader>("UPDATE biocare_review_customer_tokens SET used_at = NOW() WHERE token_hash = ? AND used_at IS NULL AND expires_at > NOW()", [hash]);
+  if (claim.affectedRows !== 1) return null;
+  const [tokens] = await db.execute<mysql.RowDataPacket[]>("SELECT email, display_name AS displayName, phone FROM biocare_review_customer_tokens WHERE token_hash = ? LIMIT 1", [hash]);
+  if (!tokens.length) return null;
+  const email = String(tokens[0].email);
+  const name = String(tokens[0].displayName);
+  const phone = String(tokens[0].phone || "");
+  await db.execute("INSERT INTO biocare_review_customers (id, email, display_name, phone, email_verified_at) VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE display_name = VALUES(display_name), phone = VALUES(phone), email_verified_at = COALESCE(email_verified_at, NOW())", [randomUUID(), email, name, phone]);
+  const [rows] = await db.execute<mysql.RowDataPacket[]>("SELECT id, email, display_name AS displayName, phone FROM biocare_review_customers WHERE email = ? AND email_verified_at IS NOT NULL LIMIT 1", [email]);
+  if (!rows.length) return null;
+  const customer: ReviewCustomer = { id: String(rows[0].id), email: String(rows[0].email), name: String(rows[0].displayName), phone: String(rows[0].phone || "") };
+  const session = randomBytes(32).toString("base64url");
+  await db.execute("INSERT INTO biocare_review_customer_sessions (token_hash, customer_id, expires_at) VALUES (?, ?, ?)", [sha256(session), customer.id, new Date(Date.now() + 8 * 60 * 60_000)]);
+  return { session, customer };
+}
+
+function customerSessionFromRequest(request: Request) {
+  const cookie = request.headers.get("cookie") || "";
+  const value = cookie.split(";").map((part) => part.trim()).find((part) => part.startsWith(`${customerCookie}=`))?.slice(customerCookie.length + 1);
+  return value ? decodeURIComponent(value) : "";
+}
+
+export async function getReviewCustomer(request: Request): Promise<ReviewCustomer | null> {
+  await ensureReviewSchema();
+  const token = customerSessionFromRequest(request);
+  if (token.length < 32 || token.length > 128) return null;
+  const [rows] = await getPool().execute<mysql.RowDataPacket[]>("SELECT c.id, c.email, c.display_name AS displayName, c.phone FROM biocare_review_customer_sessions s JOIN biocare_review_customers c ON c.id = s.customer_id WHERE s.token_hash = ? AND s.expires_at > NOW() AND c.email_verified_at IS NOT NULL LIMIT 1", [sha256(token)]);
+  const row = rows[0];
+  return row ? { id: String(row.id), email: String(row.email), name: String(row.displayName), phone: String(row.phone || "") } : null;
+}
+
+export async function updateReviewCustomerProfile(customerId: string, rawName: unknown, rawPhone: unknown) {
+  await ensureReviewSchema();
+  const name = typeof rawName === "string" ? rawName.trim() : "";
+  const phone = typeof rawPhone === "string" ? rawPhone.trim() : "";
+  if (name.length < 2 || name.length > 80 || phone.replace(/[\s()+.-]/g, "").length < 7 || phone.length > 40) {
+    throw new ReviewApiError(400, "Adj meg érvényes nevet és telefonszámot.");
+  }
+  await getPool().execute("UPDATE biocare_review_customers SET display_name = ?, phone = ? WHERE id = ?", [name, phone, customerId]);
+  return { name, phone };
+}
+
+export async function deleteReviewCustomerSession(request: Request) {
+  await ensureReviewSchema();
+  const token = customerSessionFromRequest(request);
+  if (token) await getPool().execute("DELETE FROM biocare_review_customer_sessions WHERE token_hash = ?", [sha256(token)]);
+}
+
+export function reviewCustomerCookie(session: string, clear = false, secure = true) {
+  return `${customerCookie}=${clear ? "" : encodeURIComponent(session)}; Path=/; HttpOnly; ${secure ? "Secure; " : ""}SameSite=Strict; Max-Age=${clear ? 0 : 8 * 60 * 60}`;
+}
+
+export async function listCustomerReviews(customerId: string): Promise<ReviewCustomerRecord[]> {
+  await ensureReviewSchema();
+  const [rows] = await getPool().execute<mysql.RowDataPacket[]>("SELECT id, author, rating, review_text AS reviewText, DATE_FORMAT(created_at, '%Y-%m-%d') AS reviewDate, source, status, DATE_FORMAT(deleted_at, '%Y-%m-%d %H:%i') AS deletedAt FROM biocare_reviews WHERE customer_id = ? AND status <> 'deleted' ORDER BY created_at DESC LIMIT 100", [customerId]);
+  return rows.map((row) => ({ id: String(row.id), author: String(row.author), rating: Number(row.rating), text: String(row.reviewText), date: String(row.reviewDate), source: row.source as ReviewRecord["source"], status: row.status as "pending" | ReviewAdminStatus, deletedAt: row.deletedAt ? String(row.deletedAt) : null }));
+}
+
+export async function withdrawCustomerReview(customerId: string, reviewId: string) {
+  await ensureReviewSchema();
+  if (!/^[0-9a-f-]{36}$/i.test(reviewId)) return false;
+  const [result] = await getPool().execute<mysql.ResultSetHeader>("UPDATE biocare_reviews SET status = 'deleted', deleted_at = NOW(), approval_token_hash = NULL, approval_expires_at = NULL WHERE id = ? AND customer_id = ? AND status IN ('pending', 'published', 'archived')", [reviewId, customerId]);
+  return result.affectedRows === 1;
+}
+
+export async function listCustomerGiftRequests(customerId: string): Promise<CustomerGiftRequest[]> {
+  await ensureReviewSchema();
+  const [rows] = await getPool().execute<mysql.RowDataPacket[]>("SELECT id, request_kind AS kind, details, status, DATE_FORMAT(created_at, '%Y-%m-%d') AS createdAt FROM biocare_gift_requests WHERE customer_id = ? ORDER BY created_at DESC LIMIT 100", [customerId]);
+  return rows.map((row) => ({ id: String(row.id), kind: String(row.kind), details: String(row.details), status: row.status as CustomerGiftRequest["status"], createdAt: String(row.createdAt) }));
+}
+
+export async function createCustomerGiftRequest(customer: ReviewCustomer, rawKind: unknown, rawDetails: unknown) {
+  await ensureReviewSchema();
+  const kind = typeof rawKind === "string" ? rawKind.trim() : "";
+  const details = typeof rawDetails === "string" ? rawDetails.trim() : "";
+  if (!["Ajándékkártya", "Arckezelési bérlet", "Kezelési utalvány"].includes(kind) || details.length < 3 || details.length > 1000) {
+    throw new ReviewApiError(400, "Válassz egy igénylést, és adj meg legalább néhány részletet.");
+  }
+  const id = randomUUID();
+  await getPool().execute("INSERT INTO biocare_gift_requests (id, customer_id, request_kind, details) VALUES (?, ?, ?, ?)", [id, customer.id, kind, details]);
+  const notifyTo = process.env.REVIEW_ADMIN_EMAIL?.trim() || currentAdminEmail();
+  if (process.env.SMTP_HOST && process.env.SMTP_USER && process.env.SMTP_PASSWORD) {
+    try {
+      await adminTransport().sendMail({
+        to: notifyTo,
+        from: process.env.SMTP_FROM || process.env.SMTP_USER,
+        subject: `BioCare igénylés – ${kind}`,
+        text: `Új igénylés érkezett.\nNév: ${customer.name}\nE-mail: ${customer.email}\nTípus: ${kind}\nRészletek: ${details}\nAz igénylés a vendég adminfiókjában is megjelenik.`,
+        html: `<main style="font-family:Arial,sans-serif;color:#283126"><h1>Új BioCare-igénylés</h1><p><b>${escapeHtml(kind)}</b></p><p>Név: ${escapeHtml(customer.name)}<br>E-mail: ${escapeHtml(customer.email)}</p><p>${escapeHtml(details)}</p></main>`,
+      });
+    } catch (error) {
+      console.error("Gift request was saved, but the notification email failed", error);
+    }
+  }
+  return id;
+}
+
+export async function getReviewAdminDashboard(): Promise<AdminDashboard> {
+  await ensureReviewSchema();
+  const db = getPool();
+  const [[userRows], [requestRows], [reviewStats]] = await Promise.all([
+    db.query<mysql.RowDataPacket[]>(`SELECT c.id, c.display_name AS name, c.email, c.phone, DATE_FORMAT(c.created_at, '%Y-%m-%d') AS createdAt, COUNT(DISTINCT r.id) AS reviewCount, COUNT(DISTINCT g.id) AS giftRequestCount FROM biocare_review_customers c LEFT JOIN biocare_reviews r ON r.customer_id = c.id LEFT JOIN biocare_gift_requests g ON g.customer_id = c.id GROUP BY c.id ORDER BY c.created_at DESC LIMIT 500`),
+    db.query<mysql.RowDataPacket[]>(`SELECT g.id, g.request_kind AS kind, g.details, g.status, DATE_FORMAT(g.created_at, '%Y-%m-%d') AS createdAt, c.display_name AS customerName, c.email AS customerEmail, c.phone AS customerPhone FROM biocare_gift_requests g JOIN biocare_review_customers c ON c.id = g.customer_id ORDER BY g.created_at DESC LIMIT 500`),
+    db.query<mysql.RowDataPacket[]>(`SELECT COUNT(*) AS total, SUM(status = 'pending') AS pending, SUM(status = 'published') AS published FROM biocare_reviews`),
+  ]);
+  const [[customerCount]] = await db.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS total FROM biocare_review_customers");
+  const [[requestCount]] = await db.query<mysql.RowDataPacket[]>("SELECT COUNT(*) AS total FROM biocare_gift_requests WHERE status IN ('requested', 'contacted')");
+  const stats = reviewStats[0] || {};
+  return {
+    users: userRows.map((row) => ({ id: String(row.id), name: String(row.name), email: String(row.email), phone: String(row.phone || ""), createdAt: String(row.createdAt), reviewCount: Number(row.reviewCount), giftRequestCount: Number(row.giftRequestCount) })),
+    giftRequests: requestRows.map((row) => ({ id: String(row.id), kind: String(row.kind), details: String(row.details), status: row.status as CustomerGiftRequest["status"], createdAt: String(row.createdAt), customerName: String(row.customerName), customerEmail: String(row.customerEmail), customerPhone: String(row.customerPhone || "") })),
+    counts: { users: Number(customerCount.total), reviews: Number(stats.total || 0), pendingReviews: Number(stats.pending || 0), publishedReviews: Number(stats.published || 0), giftRequests: Number(requestCount.total) },
+  };
+}
+
+export async function updateAdminGiftRequestStatus(id: string, rawStatus: unknown) {
+  await ensureReviewSchema();
+  if (!/^[0-9a-f-]{36}$/i.test(id) || !["requested", "contacted", "completed", "cancelled"].includes(String(rawStatus))) return false;
+  const [result] = await getPool().execute<mysql.ResultSetHeader>("UPDATE biocare_gift_requests SET status = ? WHERE id = ?", [rawStatus, id]);
+  return result.affectedRows === 1;
 }
 
 async function createAdminLoginToken() {
@@ -308,6 +534,31 @@ export async function listAdminReviews(status: ReviewAdminStatus): Promise<Revie
   return rows.map((row) => ({ id: String(row.id), author: String(row.author), rating: Number(row.rating), text: String(row.reviewText), date: String(row.reviewDate), source: row.source as ReviewRecord["source"], status: row.status as ReviewAdminStatus, deletedAt: row.deletedAt ? String(row.deletedAt) : null }));
 }
 
+export async function getReviewIntegrationSettings(): Promise<ReviewIntegrationSettings> {
+  await ensureReviewSchema();
+  const [rows] = await getPool().query<mysql.RowDataPacket[]>("SELECT google_url AS googleUrl, facebook_url AS facebookUrl, instagram_url AS instagramUrl FROM biocare_review_integrations WHERE id = 1 LIMIT 1");
+  const row = rows[0];
+  return { googleUrl: String(row?.googleUrl || ""), facebookUrl: String(row?.facebookUrl || ""), instagramUrl: String(row?.instagramUrl || "") };
+}
+
+export async function saveReviewIntegrationSettings(value: unknown): Promise<ReviewIntegrationSettings> {
+  if (!value || typeof value !== "object") throw new ReviewApiError(400, "Ellenőrizd a megadott kapcsolatokat.");
+  const input = value as Record<string, unknown>;
+  const parseUrl = (key: keyof ReviewIntegrationSettings) => {
+    const raw = typeof input[key] === "string" ? input[key].trim() : "";
+    if (!raw) return "";
+    if (raw.length > 2048) throw new ReviewApiError(400, "A hivatkozás túl hosszú.");
+    let url: URL;
+    try { url = new URL(raw); } catch { throw new ReviewApiError(400, "Csak teljes, https:// kezdetű hivatkozást adj meg."); }
+    if (url.protocol !== "https:") throw new ReviewApiError(400, "Csak biztonságos https:// hivatkozás menthető.");
+    return url.toString();
+  };
+  const settings = { googleUrl: parseUrl("googleUrl"), facebookUrl: parseUrl("facebookUrl"), instagramUrl: parseUrl("instagramUrl") };
+  await ensureReviewSchema();
+  await getPool().execute("UPDATE biocare_review_integrations SET google_url = ?, facebook_url = ?, instagram_url = ? WHERE id = 1", [settings.googleUrl, settings.facebookUrl, settings.instagramUrl]);
+  return settings;
+}
+
 export async function applyReviewAdminAction(id: string, action: "archive" | "restore" | "delete" | "purge") {
   await ensureReviewSchema();
   if (!/^[0-9a-f-]{36}$/i.test(id)) return false;
@@ -336,7 +587,7 @@ function escapeHtml(value: string) {
   return value.replace(/[&<>"']/g, (character) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" })[character] ?? character);
 }
 
-export async function submitReview(input: ReviewInput, requestOrigin: string) {
+export async function submitReview(input: ReviewInput, requestOrigin: string, customerId: string | null = null) {
   await ensureReviewSchema();
   const id = randomUUID();
   const token = randomBytes(32).toString("base64url");
@@ -344,8 +595,8 @@ export async function submitReview(input: ReviewInput, requestOrigin: string) {
   const expires = new Date(Date.now() + 48 * 60 * 60_000);
   const db = getPool();
   await db.execute(
-    "INSERT INTO biocare_reviews (id, author, rating, review_text, source, status, consent_at, approval_token_hash, approval_expires_at) VALUES (?, ?, ?, ?, 'website', 'pending', NOW(), ?, ?)",
-    [id, input.name, input.rating, input.review, tokenHash, expires],
+    "INSERT INTO biocare_reviews (id, author, rating, review_text, source, status, consent_at, approval_token_hash, approval_expires_at, customer_id) VALUES (?, ?, ?, ?, 'website', 'pending', NOW(), ?, ?, ?)",
+    [id, input.name, input.rating, input.review, tokenHash, expires, customerId],
   );
 
   try {

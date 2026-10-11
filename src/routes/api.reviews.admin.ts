@@ -4,12 +4,16 @@ import {
   assertSameOrigin,
   createReviewAdminSession,
   deleteReviewAdminSession,
+  getReviewIntegrationSettings,
+  getReviewAdminDashboard,
   listAdminReviews,
   requireReviewAdmin,
   requestReviewAdminAccess,
   reviewAdminCookie,
   ReviewApiError,
   sendReviewAdminHandoffEmail,
+  saveReviewIntegrationSettings,
+  updateAdminGiftRequestStatus,
   syncReviewAdminEmail,
   type ReviewAdminStatus,
 } from "../../server/utils/reviews";
@@ -28,6 +32,12 @@ export const Route = createFileRoute("/api/reviews/admin")({
         try {
           await syncReviewAdminEmail(request);
           await requireReviewAdmin(request);
+          if (new URL(request.url).searchParams.get("resource") === "integrations") {
+            return Response.json({ integrations: await getReviewIntegrationSettings() }, { headers: { "Cache-Control": "no-store" } });
+          }
+          if (new URL(request.url).searchParams.get("resource") === "dashboard") {
+            return Response.json({ dashboard: await getReviewAdminDashboard() }, { headers: { "Cache-Control": "no-store" } });
+          }
           const rawStatus = new URL(request.url).searchParams.get("status");
           const status: ReviewAdminStatus = rawStatus === "archived" || rawStatus === "deleted" ? rawStatus : "published";
           return Response.json({ reviews: await listAdminReviews(status), handoffEnabled: process.env["REVIEW_ADMIN_HANDOFF_ENABLED"] === "true" }, { headers: { "Cache-Control": "no-store" } });
@@ -39,7 +49,7 @@ export const Route = createFileRoute("/api/reviews/admin")({
         try {
           assertSameOrigin(request);
           await syncReviewAdminEmail(request);
-          let body: { action?: unknown; token?: unknown; reviewId?: unknown; confirmed?: unknown };
+          let body: { action?: unknown; token?: unknown; reviewId?: unknown; requestId?: unknown; requestStatus?: unknown; confirmed?: unknown; integrations?: unknown };
           try { body = await request.json() as typeof body; } catch { throw new ReviewApiError(400, "A kérés nem értelmezhető."); }
           const action = String(body.action || "");
           const secure = new URL(request.url).protocol === "https:";
@@ -63,6 +73,16 @@ export const Route = createFileRoute("/api/reviews/admin")({
           await requireReviewAdmin(request);
           if (action === "send_handoff") {
             await sendReviewAdminHandoffEmail(request);
+            return Response.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
+          }
+          if (action === "save_integrations") {
+            const integrations = await saveReviewIntegrationSettings(body.integrations);
+            return Response.json({ ok: true, integrations }, { headers: { "Cache-Control": "no-store" } });
+          }
+          if (action === "update_gift_request") {
+            if (typeof body.requestId !== "string" || !await updateAdminGiftRequestStatus(body.requestId, body.requestStatus)) {
+              throw new ReviewApiError(404, "Az igénylés nem található, vagy az állapot nem érvényes.");
+            }
             return Response.json({ ok: true }, { headers: { "Cache-Control": "no-store" } });
           }
           if (!["archive", "restore", "delete", "purge"].includes(action) || typeof body.reviewId !== "string") {

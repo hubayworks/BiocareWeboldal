@@ -1,6 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, ArrowUpRight, Heart, Star } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, Heart, Star, UserRound } from "lucide-react";
 import { site } from "@/lib/site-data";
 
 export const Route = createFileRoute("/velemeny-irasa")({
@@ -37,7 +37,7 @@ function ReviewFormPage() {
   return (
     <main className="min-h-screen bg-background px-5 py-8 text-foreground sm:px-8 sm:py-12">
       <div className="mx-auto max-w-xl">
-        <Link to="/" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary"><ArrowLeft size={16} aria-hidden="true" /> Vissza a BioCare-hoz</Link>
+        <div className="flex flex-wrap items-center justify-between gap-3"><Link to="/" className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-primary"><ArrowLeft size={16} aria-hidden="true" /> Vissza a BioCare-hoz</Link><Link to="/fiok" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/20 px-4 text-sm font-semibold text-primary"><UserRound size={16} aria-hidden="true" /> Saját véleményeim</Link></div>
         <div className="mt-8 rounded-[1.75rem] border border-primary/10 bg-white/80 p-5 shadow-lg shadow-primary/5 sm:p-8">
           <p className="eyebrow">Vendégvélemény</p>
           <h1 className="mt-2 font-display text-4xl font-medium leading-tight sm:text-5xl">Meséld el, milyen volt.</h1>

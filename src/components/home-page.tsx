@@ -54,6 +54,7 @@ const appMenuLinks = [
   { label: "Bemutatkozás", href: "/#bemutatkozas" },
   { label: "Újdonságok", href: "/#uj-kinalat" },
   { label: "Kapcsolat", href: "/#kapcsolat" },
+  { label: "Belépés / regisztráció", href: "/fiok" },
   { label: "Vélemények", href: "/velemenyek" },
   { label: "Galéria", href: "/galeria" },
   { label: "Kérdőívek", href: "/kerdoivek" },
@@ -164,9 +165,14 @@ function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
         <nav className="hidden flex-1 items-center justify-center gap-4 md:flex lg:gap-7" aria-label="Fő navigáció">
           {navigation.map((item) => <a key={item.href} href={item.href} className="text-sm font-semibold text-foreground transition-colors hover:text-primary">{item.label}</a>)}
         </nav>
-        <BookingLink className="hidden min-h-11 items-center gap-2 rounded-full bg-gradient-to-r from-[#B7C99A] via-[#A8B98A] to-[#93A978] px-4 py-2 text-xs font-semibold text-[#26351C] transition-colors hover:brightness-105 md:inline-flex md:text-sm">
-          Időpontot egyeztetek <ArrowUpRight size={15} aria-hidden="true" />
-        </BookingLink>
+        <div className="hidden items-center gap-2 md:flex">
+          <BookingLink className="inline-flex min-h-11 items-center gap-2 rounded-full bg-gradient-to-r from-[#B7C99A] via-[#A8B98A] to-[#93A978] px-4 py-2 text-xs font-semibold text-[#26351C] transition-colors hover:brightness-105 md:text-sm">
+            Időpontot egyeztetek <ArrowUpRight size={15} aria-hidden="true" />
+          </BookingLink>
+          <Link to="/fiok" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/25 bg-background/55 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition-colors hover:bg-primary/10 md:text-sm">
+            Belépés / regisztráció
+          </Link>
+        </div>
       </div>
     </header>
     </>
@@ -269,22 +275,16 @@ function Hero() {
     const animateVideo = (timestamp: number) => {
       animationFrame = 0;
       if (!video.duration || !Number.isFinite(video.duration)) return;
+
       displayedProgress += (targetProgress - displayedProgress) * 0.2;
       if (Math.abs(targetProgress - displayedProgress) < 0.001) displayedProgress = targetProgress;
+
       if (timestamp - lastSeekTime > 1000 / 30 || displayedProgress === targetProgress) {
         video.currentTime = Math.min(video.duration - 0.001, displayedProgress * video.duration);
         lastSeekTime = timestamp;
       }
-      if (displayedProgress !== targetProgress) animationFrame = window.requestAnimationFrame(animateVideo);
-    };
 
-    const startMobilePlayback = () => {
-      if (!isMobile || reducedMotionQuery.matches) {
-        video.pause();
-        return;
-      }
-      video.loop = true;
-      void video.play().catch(() => {});
+      if (displayedProgress !== targetProgress) animationFrame = window.requestAnimationFrame(animateVideo);
     };
 
     const onMetadata = () => {
@@ -294,6 +294,15 @@ function Hero() {
       }
       displayedProgress = video.currentTime / video.duration;
       updateTarget();
+    };
+
+    const startMobilePlayback = () => {
+      if (!isMobile || reducedMotionQuery.matches) {
+        video.pause();
+        return;
+      }
+      video.loop = true;
+      void video.play().catch(() => {});
     };
 
     const syncPlaybackMode = () => {
@@ -338,6 +347,7 @@ function Hero() {
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
     };
   }, []);
+
   return (
     <section
       ref={heroRef}
@@ -418,7 +428,7 @@ function ServiceSection() {
   );
 }
 
-function OwnerIntroductionSection() {
+function OwnerIntroductionSection({ compactMenuEnabled }: { compactMenuEnabled: boolean }) {
   return (
     <section id="bemutatkozas" className="scroll-mt-36 bg-secondary/45 px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-16">
@@ -848,7 +858,7 @@ export function HomePage() {
   return (
     <div className="home-app-shell min-h-screen overflow-x-hidden bg-background text-foreground">
       <SiteHeader hideDuringPortrait={compactMenuEnabled} />
-      <main><Hero /><NewOfferingsSection /><OwnerIntroductionSection /><ReviewsSection /><ServiceSection /><PriceList /><GiftsSection /><ContactSection /></main>
+      <main><Hero /><NewOfferingsSection /><OwnerIntroductionSection compactMenuEnabled={compactMenuEnabled} /><ReviewsSection /><ServiceSection /><PriceList /><GiftsSection /><ContactSection /></main>
       <footer className="bg-foreground px-5 py-7 text-background md:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 text-xs md:grid-cols-[1fr_auto_1fr] md:items-center">
           <p className="text-center md:text-left">Minden jog fenntartva © 2026 BioCare Kozmetika · {site.practitioner}</p>

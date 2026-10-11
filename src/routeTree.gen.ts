@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdatvedelemRouteImport } from './routes/adatvedelem'
+import { Route as FiokRouteImport } from './routes/fiok'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as HubayWorksRouteImport } from './routes/hubay-works'
 import { Route as ImpresszumRouteImport } from './routes/impresszum'
@@ -19,7 +20,10 @@ import { Route as ReviewJovahagyasRouteImport } from './routes/review-jovahagyas
 import { Route as ReviewsAdminRouteImport } from './routes/reviews-admin'
 import { Route as VelemenyIrasaRouteImport } from './routes/velemeny-irasa'
 import { Route as VelemenyekRouteImport } from './routes/velemenyek'
+import { Route as ApiAccountRouteImport } from './routes/api.account'
 import { Route as ApiReviewsRouteImport } from './routes/api.reviews'
+import { Route as ApiAccountRequestsRouteImport } from './routes/api.account.requests'
+import { Route as ApiAccountReviewsRouteImport } from './routes/api.account.reviews'
 import { Route as ApiReviewsAdminRouteImport } from './routes/api.reviews.admin'
 import { Route as ApiReviewsApprovalRouteImport } from './routes/api.reviews.approval'
 
@@ -31,6 +35,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdatvedelemRoute = AdatvedelemRouteImport.update({
   id: '/adatvedelem',
   path: '/adatvedelem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FiokRoute = FiokRouteImport.update({
+  id: '/fiok',
+  path: '/fiok',
   getParentRoute: () => rootRouteImport,
 } as any)
 const GaleriaRoute = GaleriaRouteImport.update({
@@ -73,10 +82,25 @@ const VelemenyekRoute = VelemenyekRouteImport.update({
   path: '/velemenyek',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAccountRoute = ApiAccountRouteImport.update({
+  id: '/api/account',
+  path: '/api/account',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiReviewsRoute = ApiReviewsRouteImport.update({
   id: '/api/reviews',
   path: '/api/reviews',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAccountRequestsRoute = ApiAccountRequestsRouteImport.update({
+  id: '/requests',
+  path: '/requests',
+  getParentRoute: () => ApiAccountRoute,
+} as any)
+const ApiAccountReviewsRoute = ApiAccountReviewsRouteImport.update({
+  id: '/reviews',
+  path: '/reviews',
+  getParentRoute: () => ApiAccountRoute,
 } as any)
 const ApiReviewsAdminRoute = ApiReviewsAdminRouteImport.update({
   id: '/admin',
@@ -92,6 +116,7 @@ const ApiReviewsApprovalRoute = ApiReviewsApprovalRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/fiok': typeof FiokRoute
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
@@ -100,13 +125,17 @@ export interface FileRoutesByFullPath {
   '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
+  '/api/account': typeof ApiAccountRouteWithChildren
   '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/account/requests': typeof ApiAccountRequestsRoute
+  '/api/account/reviews': typeof ApiAccountReviewsRoute
   '/api/reviews/admin': typeof ApiReviewsAdminRoute
   '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/fiok': typeof FiokRoute
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
@@ -115,7 +144,10 @@ export interface FileRoutesByTo {
   '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
+  '/api/account': typeof ApiAccountRouteWithChildren
   '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/account/requests': typeof ApiAccountRequestsRoute
+  '/api/account/reviews': typeof ApiAccountReviewsRoute
   '/api/reviews/admin': typeof ApiReviewsAdminRoute
   '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
@@ -123,6 +155,7 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/fiok': typeof FiokRoute
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
@@ -131,7 +164,10 @@ export interface FileRoutesById {
   '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
+  '/api/account': typeof ApiAccountRouteWithChildren
   '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/account/requests': typeof ApiAccountRequestsRoute
+  '/api/account/reviews': typeof ApiAccountReviewsRoute
   '/api/reviews/admin': typeof ApiReviewsAdminRoute
   '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
@@ -140,6 +176,7 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/adatvedelem'
+    | '/fiok'
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
@@ -148,13 +185,17 @@ export interface FileRouteTypes {
     | '/reviews-admin'
     | '/velemeny-irasa'
     | '/velemenyek'
+    | '/api/account'
     | '/api/reviews'
+    | '/api/account/requests'
+    | '/api/account/reviews'
     | '/api/reviews/admin'
     | '/api/reviews/approval'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/adatvedelem'
+    | '/fiok'
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
@@ -163,13 +204,17 @@ export interface FileRouteTypes {
     | '/reviews-admin'
     | '/velemeny-irasa'
     | '/velemenyek'
+    | '/api/account'
     | '/api/reviews'
+    | '/api/account/requests'
+    | '/api/account/reviews'
     | '/api/reviews/admin'
     | '/api/reviews/approval'
   id:
     | '__root__'
     | '/'
     | '/adatvedelem'
+    | '/fiok'
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
@@ -178,7 +223,10 @@ export interface FileRouteTypes {
     | '/reviews-admin'
     | '/velemeny-irasa'
     | '/velemenyek'
+    | '/api/account'
     | '/api/reviews'
+    | '/api/account/requests'
+    | '/api/account/reviews'
     | '/api/reviews/admin'
     | '/api/reviews/approval'
   fileRoutesById: FileRoutesById
@@ -186,6 +234,7 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdatvedelemRoute: typeof AdatvedelemRoute
+  FiokRoute: typeof FiokRoute
   GaleriaRoute: typeof GaleriaRoute
   HubayWorksRoute: typeof HubayWorksRoute
   ImpresszumRoute: typeof ImpresszumRoute
@@ -194,6 +243,7 @@ export interface RootRouteChildren {
   ReviewsAdminRoute: typeof ReviewsAdminRoute
   VelemenyIrasaRoute: typeof VelemenyIrasaRoute
   VelemenyekRoute: typeof VelemenyekRoute
+  ApiAccountRoute: typeof ApiAccountRouteWithChildren
   ApiReviewsRoute: typeof ApiReviewsRouteWithChildren
 }
 
@@ -211,6 +261,13 @@ declare module '@tanstack/react-router' {
       path: '/adatvedelem'
       fullPath: '/adatvedelem'
       preLoaderRoute: typeof AdatvedelemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/fiok': {
+      id: '/fiok'
+      path: '/fiok'
+      fullPath: '/fiok'
+      preLoaderRoute: typeof FiokRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/galeria': {
@@ -269,12 +326,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof VelemenyekRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/account': {
+      id: '/api/account'
+      path: '/api/account'
+      fullPath: '/api/account'
+      preLoaderRoute: typeof ApiAccountRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/reviews': {
       id: '/api/reviews'
       path: '/api/reviews'
       fullPath: '/api/reviews'
       preLoaderRoute: typeof ApiReviewsRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/api/account/requests': {
+      id: '/api/account/requests'
+      path: '/requests'
+      fullPath: '/api/account/requests'
+      preLoaderRoute: typeof ApiAccountRequestsRouteImport
+      parentRoute: typeof ApiAccountRoute
+    }
+    '/api/account/reviews': {
+      id: '/api/account/reviews'
+      path: '/reviews'
+      fullPath: '/api/account/reviews'
+      preLoaderRoute: typeof ApiAccountReviewsRouteImport
+      parentRoute: typeof ApiAccountRoute
     }
     '/api/reviews/admin': {
       id: '/api/reviews/admin'
@@ -293,6 +371,20 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface ApiAccountRouteChildren {
+  ApiAccountRequestsRoute: typeof ApiAccountRequestsRoute
+  ApiAccountReviewsRoute: typeof ApiAccountReviewsRoute
+}
+
+const ApiAccountRouteChildren: ApiAccountRouteChildren = {
+  ApiAccountRequestsRoute: ApiAccountRequestsRoute,
+  ApiAccountReviewsRoute: ApiAccountReviewsRoute,
+}
+
+const ApiAccountRouteWithChildren = ApiAccountRoute._addFileChildren(
+  ApiAccountRouteChildren,
+)
+
 interface ApiReviewsRouteChildren {
   ApiReviewsAdminRoute: typeof ApiReviewsAdminRoute
   ApiReviewsApprovalRoute: typeof ApiReviewsApprovalRoute
@@ -310,6 +402,7 @@ const ApiReviewsRouteWithChildren = ApiReviewsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdatvedelemRoute: AdatvedelemRoute,
+  FiokRoute: FiokRoute,
   GaleriaRoute: GaleriaRoute,
   HubayWorksRoute: HubayWorksRoute,
   ImpresszumRoute: ImpresszumRoute,
@@ -318,6 +411,7 @@ const rootRouteChildren: RootRouteChildren = {
   ReviewsAdminRoute: ReviewsAdminRoute,
   VelemenyIrasaRoute: VelemenyIrasaRoute,
   VelemenyekRoute: VelemenyekRoute,
+  ApiAccountRoute: ApiAccountRouteWithChildren,
   ApiReviewsRoute: ApiReviewsRouteWithChildren,
 }
 export const routeTree = rootRouteImport
