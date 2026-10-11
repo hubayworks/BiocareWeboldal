@@ -6,8 +6,6 @@ type InstallPromptEvent = Event & {
   userChoice: Promise<{ outcome: "accepted" | "dismissed" }>;
 };
 
-const dismissedKey = "biocare-install-prompt-dismissed-until";
-
 export function MobileInstallPrompt() {
   const [visible, setVisible] = useState(false);
   const [ios, setIos] = useState(false);
@@ -24,13 +22,6 @@ export function MobileInstallPrompt() {
     if ((!isIosDevice && !isAndroid) || !isMobileViewport || isStandalone) return;
     setIos(isIosDevice);
 
-    try {
-      const dismissedUntil = Number(localStorage.getItem(dismissedKey) || 0);
-      if (dismissedUntil > Date.now()) return;
-    } catch {
-      // If storage is unavailable, still show the install option for this visit.
-    }
-
     const onBeforeInstallPrompt = (event: Event) => {
       event.preventDefault();
       setInstallEvent(event as InstallPromptEvent);
@@ -46,11 +37,6 @@ export function MobileInstallPrompt() {
 
   const dismiss = () => {
     setVisible(false);
-    try {
-      localStorage.setItem(dismissedKey, String(Date.now() + 3 * 24 * 60 * 60 * 1000));
-    } catch {
-      // Dismissal remains effective for the current render.
-    }
   };
 
   const install = async () => {
