@@ -154,13 +154,13 @@ function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
 
   return (
     <>
-    <aside aria-label="Aktuális ajánlat" className="mobile-promo fixed inset-x-0 top-0 z-50 flex items-center justify-center bg-primary px-4 text-center text-xs font-semibold tracking-wide text-primary-foreground sm:text-sm">
+    <aside aria-label="Aktuális ajánlat" className="mobile-promo fixed inset-x-0 top-0 z-50 flex h-8 items-center justify-center bg-primary px-4 text-center text-xs font-semibold tracking-wide text-primary-foreground sm:text-sm">
       Új vendégeinknek 15% kedvezmény
     </aside>
-    <header className={`mobile-site-header fixed inset-x-0 z-40 px-4 transition-[opacity,transform] duration-500 ease-out sm:px-5 md:px-8 ${hideDuringPortrait ? "pointer-events-none -translate-y-8 opacity-0" : "translate-y-0 opacity-100"}`} inert={hideDuringPortrait}>
+    <header className={`mobile-site-header fixed inset-x-0 top-10 z-40 px-4 transition-[opacity,transform] duration-500 ease-out sm:px-5 md:px-8 ${hideDuringPortrait ? "pointer-events-none -translate-y-8 opacity-0" : "translate-y-0 opacity-100"}`} inert={hideDuringPortrait}>
       <div className="nav-gradient-glass mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-2xl px-4 text-foreground shadow-lg shadow-foreground/10 backdrop-blur-md md:h-[72px] md:rounded-full md:px-7">
-        <a href="#top" aria-label="BioCare Kozmetika – főoldal" className="shrink-0">
-          <img src={logo} alt="BioCare Kozmetika" className="h-12 w-32 object-contain md:h-14 md:w-40" />
+        <a href="/#top" aria-label="BioCare Kozmetika – főoldal" className="shrink-0">
+          <img src={logo} alt="BioCare Kozmetika" className="h-12 w-36 object-contain md:h-14 md:w-44" />
         </a>
         <nav className="hidden flex-1 items-center justify-center gap-4 md:flex lg:gap-7" aria-label="Fő navigáció">
           {navigation.map((item) => <a key={item.href} href={item.href} className="text-sm font-semibold text-foreground transition-colors hover:text-primary">{item.label}</a>)}
@@ -282,7 +282,7 @@ function Hero() {
         width={1536}
         height={2048}
         fetchPriority="high"
-        className="absolute inset-0 h-full w-full object-cover object-[center_44%] brightness-110"
+        className="absolute inset-0 h-full w-full object-cover object-[center_46%] brightness-110"
       />
       <div className="bg-hero-shade absolute inset-0" aria-hidden="true" />
       <div className="relative mx-auto flex min-h-[72svh] max-w-7xl items-center px-5 py-20 md:min-h-[68svh] md:px-8 md:py-20">
