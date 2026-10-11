@@ -3,18 +3,23 @@ import { Link } from "@tanstack/react-router";
 import {
   ArrowDownRight,
   ArrowUpRight,
+  BadgePercent,
   ChevronDown,
   Download,
   Facebook,
   Flower2,
+  Gift,
   Heart,
+  House,
   Instagram,
   Mail,
   MapPin,
   Menu,
   Music2,
   Phone,
+  PanelsTopLeft,
   RotateCw,
+  Sparkles,
   X,
 } from "lucide-react";
 import logo from "@/assets/biocare-logo-cropped.png";
@@ -43,6 +48,20 @@ const navigation = [
   { label: "Árlista", href: "#arlista" },
   { label: "Ajándékozás", href: "#ajandekozas" },
   { label: "Kapcsolat", href: "#kapcsolat" },
+];
+
+const appMenuLinks = [
+  { label: "Kezdőlap", href: "#top" },
+  { label: "Bemutatkozás", href: "#bemutatkozas" },
+  { label: "Újdonságok", href: "#uj-kinalat" },
+  ...navigation,
+];
+
+const mobileTabs = [
+  { label: "Kezdőlap", href: "#top", icon: House, section: "top" },
+  { label: "Szolgáltatás", href: "#szolgaltatasok", icon: Sparkles, section: "szolgaltatasok" },
+  { label: "Árlista", href: "#arlista", icon: BadgePercent, section: "arlista" },
+  { label: "Ajándék", href: "#ajandekozas", icon: Gift, section: "ajandekozas" },
 ];
 
 function formatPrice(amount: number) {
@@ -134,10 +153,10 @@ function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
 
   return (
     <>
-    <aside aria-label="Aktuális ajánlat" className="fixed inset-x-0 top-0 z-50 flex h-9 items-center justify-center bg-primary px-4 text-center text-xs font-semibold tracking-wide text-primary-foreground sm:text-sm">
+    <aside aria-label="Aktuális ajánlat" className="mobile-promo fixed inset-x-0 top-0 z-50 flex items-center justify-center bg-primary px-4 text-center text-xs font-semibold tracking-wide text-primary-foreground sm:text-sm">
       Új vendégeinknek 15% kedvezmény
     </aside>
-    <header className={`fixed inset-x-0 top-11 z-40 px-5 transition-[opacity,transform] duration-500 ease-out md:px-8 ${hideDuringPortrait ? "pointer-events-none -translate-y-8 opacity-0" : "translate-y-0 opacity-100"}`} inert={hideDuringPortrait}>
+    <header className={`mobile-site-header fixed inset-x-0 z-40 px-4 transition-[opacity,transform] duration-500 ease-out sm:px-5 md:px-8 ${hideDuringPortrait ? "pointer-events-none -translate-y-8 opacity-0" : "translate-y-0 opacity-100"}`} inert={hideDuringPortrait}>
       <div className="nav-gradient-glass mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-2xl px-4 text-foreground shadow-lg shadow-foreground/10 backdrop-blur-md md:h-[72px] md:rounded-full md:px-7">
         <a href="#top" aria-label="BioCare Kozmetika – főoldal" className="shrink-0">
           <img src={logo} alt="BioCare Kozmetika" className="h-12 w-32 object-contain md:h-14 md:w-40" />
@@ -174,11 +193,79 @@ function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
   );
 }
 
+function MobileAppNavigation() {
+  const [activeSection, setActiveSection] = useState("top");
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  useEffect(() => {
+    const observedSections = mobileTabs
+      .map((tab) => document.getElementById(tab.section))
+      .filter((element): element is HTMLElement => Boolean(element));
+    if (!observedSections.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio)[0];
+        if (visibleEntry) setActiveSection(visibleEntry.target.id);
+      },
+      { rootMargin: "-18% 0px -62% 0px", threshold: [0, 0.2, 0.5, 0.8] },
+    );
+    observedSections.forEach((section) => observer.observe(section));
+    return () => observer.disconnect();
+  }, []);
+
+  return (
+    <>
+      {menuOpen && (
+        <div className="mobile-app-sheet fixed inset-x-3 z-[60] rounded-3xl border border-white/70 bg-[#fbfaf6]/95 p-4 shadow-[0_18px_60px_rgb(25_35_20/0.25)] backdrop-blur-xl md:hidden">
+          <div className="mb-3 flex items-center justify-between px-1">
+            <div>
+              <p className="text-[10px] font-bold uppercase tracking-[0.2em] text-primary">BioCare</p>
+              <p className="mt-0.5 font-display text-xl text-foreground">Felfedezés</p>
+            </div>
+            <button type="button" onClick={() => setMenuOpen(false)} aria-label="Menü bezárása" className="grid size-11 place-items-center rounded-full bg-primary/10 text-primary"><X size={19} aria-hidden="true" /></button>
+          </div>
+          <nav className="grid grid-cols-2 gap-2" aria-label="Összes oldal és szekció">
+            {appMenuLinks.map((item) => (
+              <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground transition-colors active:bg-primary/10">
+                {item.label}
+              </a>
+            ))}
+            <Link to="/galeria" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Galéria</Link>
+            <Link to="/hubay-works" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Hubay Works</Link>
+            <Link to="/adatvedelem" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Adatvédelem</Link>
+            <Link to="/impresszum" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Impresszum</Link>
+          </nav>
+        </div>
+      )}
+      <nav className="mobile-app-nav fixed inset-x-0 bottom-0 z-50 border-t border-white/70 bg-[#fbfaf6]/90 shadow-[0_-8px_32px_rgb(40_45_34/0.08)] backdrop-blur-xl md:hidden" aria-label="Alsó navigáció">
+        <div className="mx-auto flex h-[4.25rem] max-w-xl items-stretch justify-around px-1.5 pt-1">
+          {mobileTabs.map(({ label, href, icon: Icon, section }) => {
+            const isActive = activeSection === section;
+            return (
+              <a key={href} href={href} aria-current={isActive ? "location" : undefined} className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-center transition-colors active:scale-[0.97] ${isActive ? "text-primary" : "text-muted-foreground"}`}>
+                <span className={`grid size-7 place-items-center rounded-full transition-colors ${isActive ? "bg-primary/10" : ""}`}><Icon size={19} strokeWidth={isActive ? 2.2 : 1.8} aria-hidden="true" /></span>
+                <span className={`max-w-full text-[9px] font-semibold leading-none ${isActive ? "text-primary" : "text-muted-foreground"}`}>{label}</span>
+              </a>
+            );
+          })}
+          <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-label={menuOpen ? "Menü bezárása" : "További oldalak megnyitása"} className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-center transition-colors active:scale-[0.97] ${menuOpen ? "text-primary" : "text-muted-foreground"}`}>
+            <span className={`grid size-7 place-items-center rounded-full ${menuOpen ? "bg-primary/10" : ""}`}>{menuOpen ? <X size={19} aria-hidden="true" /> : <PanelsTopLeft size={19} aria-hidden="true" />}</span>
+            <span className="text-[9px] font-semibold leading-none">Menü</span>
+          </button>
+        </div>
+      </nav>
+    </>
+  );
+}
+
 function Hero() {
   return (
     <section
       id="top"
-      className="relative isolate min-h-[66svh] scroll-mt-36 overflow-hidden bg-foreground md:min-h-[68svh]"
+      className="relative isolate min-h-[72svh] scroll-mt-36 overflow-hidden bg-foreground md:min-h-[68svh]"
     >
       <img
         src={salonPhoto}
@@ -186,23 +273,23 @@ function Hero() {
         width={1536}
         height={2048}
         fetchPriority="high"
-        className="absolute inset-0 h-full w-full object-cover object-[center_42%] brightness-110"
+        className="absolute inset-0 h-full w-full object-cover object-[center_44%] brightness-110"
       />
       <div className="bg-hero-shade absolute inset-0" aria-hidden="true" />
-      <div className="relative mx-auto flex min-h-[66svh] max-w-7xl items-center px-5 py-16 md:min-h-[68svh] md:px-8 md:py-20">
-        <div className="relative z-10 max-w-4xl translate-x-3 md:translate-x-8">
-          <h1 className="font-display text-4xl font-medium leading-[0.98] text-hero-foreground drop-shadow-md sm:text-5xl md:translate-x-12 lg:text-6xl">
+      <div className="relative mx-auto flex min-h-[72svh] max-w-7xl items-center px-5 py-20 md:min-h-[68svh] md:px-8 md:py-20">
+        <div className="relative z-10 max-w-4xl md:translate-x-8">
+          <h1 className="font-display text-[2.05rem] font-medium leading-[1.02] text-hero-foreground drop-shadow-md sm:text-5xl md:translate-x-12 lg:text-6xl">
             Természetes bőrápolás.
             <br />
             <em className="font-normal text-accent">Egy kis idő önmagadra.</em>
           </h1>
-          <div className="mt-8 flex max-w-4xl translate-y-2 flex-wrap items-center gap-3 sm:gap-4 md:translate-x-[8.5rem] md:translate-y-3 md:flex-nowrap">
-            <a href="#arlista" className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#F4EBDD]/40 bg-[#F4EBDD]/45 px-4 py-2 text-xs font-semibold text-[#35432E] backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#F4EBDD]/65 sm:px-5 md:text-sm">
+          <div className="mt-7 flex max-w-4xl translate-y-2 flex-wrap items-center gap-2.5 sm:gap-4 md:translate-x-[8.5rem] md:translate-y-3 md:flex-nowrap">
+            <a href="#arlista" className="inline-flex min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#F4EBDD]/40 bg-[#F4EBDD]/45 px-4 py-2 text-xs font-semibold text-[#35432E] backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#F4EBDD]/65 sm:px-5 md:text-sm">
               Árlista <ArrowDownRight size={15} aria-hidden="true" />
             </a>
             <a
               href="#szolgaltatasok"
-              className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#71845E] bg-[#71845E]/95 px-4 py-2 text-xs font-semibold text-white shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#62764F] sm:px-5 md:text-sm"
+              className="inline-flex min-h-12 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#71845E] bg-[#71845E]/95 px-4 py-2 text-xs font-semibold text-white shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#62764F] sm:px-5 md:text-sm"
             >
               Szolgáltatások <ArrowDownRight size={17} aria-hidden="true" />
             </a>
@@ -678,7 +765,7 @@ export function HomePage() {
   const compactMenuEnabled = portraitInView && scrollingDown;
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-background text-foreground">
+    <div className="home-app-shell min-h-screen overflow-x-hidden bg-background text-foreground">
       <SiteHeader hideDuringPortrait={compactMenuEnabled} />
       <main><Hero /><NewOfferingsSection /><OwnerIntroductionSection compactMenuEnabled={compactMenuEnabled} /><ServiceSection /><PriceList /><GiftsSection /><ContactSection /></main>
       <footer className="bg-foreground px-5 py-7 text-background md:px-8">
@@ -692,6 +779,7 @@ export function HomePage() {
           </nav>
         </div>
       </footer>
+      <MobileAppNavigation />
     </div>
   );
 }

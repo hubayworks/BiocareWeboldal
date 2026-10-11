@@ -85,6 +85,20 @@
 .scroll-reveal { opacity: 0; transform: translateY(18px); transition: opacity .65s ease, transform .65s cubic-bezier(.2,.7,.2,1); }
 .scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
 @media (max-width: 767px) {
+  html { scroll-padding-top: 8.25rem; }
+  body { overscroll-behavior-x: none; -webkit-tap-highlight-color: transparent; }
+  .mobile-promo { height: calc(2.25rem + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); }
+  .mobile-site-header { top: calc(env(safe-area-inset-top, 0px) + 2.75rem); }
+  .mobile-app-nav { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .mobile-app-sheet { bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px) + .75rem); }
+  .home-app-shell { padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)); }
+  .home-app-shell main > section[id] { scroll-margin-top: 8.25rem; }
+  .home-app-shell button, .home-app-shell a { touch-action: manipulation; }
+  .home-app-shell #szolgaltatasok,
+  .home-app-shell #bemutatkozas,
+  .home-app-shell #ajandekozas,
+  .home-app-shell #kapcsolat { padding-top: 3.5rem; padding-bottom: 3.5rem; }
+  .home-app-shell #arlista { padding-top: 2.75rem; padding-bottom: 3.5rem; }
   .bg-hero-shade {
     background:
       linear-gradient(180deg, transparent 0%, oklch(0.18 0.015 95 / 8%) 18%, oklch(0.18 0.015 95 / 24%) 48%, oklch(0.18 0.015 95 / 40%) 100%),
