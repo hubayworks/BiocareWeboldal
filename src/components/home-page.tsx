@@ -25,6 +25,7 @@ import giftCardBackPreview from "@/assets/biocare-gift-card-back.svg";
 import passPreview from "@/assets/biocare-pass-preview.jpg";
 import passBackPreview from "@/assets/biocare-pass-back.svg";
 import ownerPhoto from "@/assets/bioker-portrait.jpg";
+import hubayWorksLogo from "@/assets/hubay-works-logo.png";
 import priceListPdf from "@/assets/kozmetikai-arlista-uj-arak.pdf";
 import {
   featuredPrices,
@@ -605,6 +606,16 @@ function ContactSection() {
         <ScrollReveal>
         <div className="flex flex-col gap-4 border-t border-primary-foreground/30 pt-6 lg:items-end lg:border-l lg:border-t-0 lg:pt-0 lg:pl-10">
           <p className="max-w-lg text-sm leading-7 text-primary-foreground/85 lg:text-right">Időpont-egyeztetéshez és az ajándékozási lehetőségekkel kapcsolatos kérdéseidhez keress telefonon vagy e-mailben.</p>
+          <Link to="/hubay-works" className="group flex w-full max-w-lg items-center gap-3 rounded-2xl border border-white/45 bg-white/10 p-3.5 text-left shadow-[0_10px_35px_rgb(20_30_20/0.12)] backdrop-blur-sm transition-colors hover:bg-white/15">
+            <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl border border-white/65 bg-white/90 p-1.5 shadow-sm">
+              <img src={hubayWorksLogo} alt="" aria-hidden="true" className="h-full w-full object-contain" />
+            </span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[10px] font-semibold uppercase tracking-[0.15em] text-primary-foreground/70">Hubay Works</span>
+              <span className="mt-0.5 block text-sm font-medium leading-snug text-primary-foreground">Weboldalt szeretnél? Keress minket.</span>
+            </span>
+            <ArrowUpRight size={17} className="shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
+          </Link>
           <div className="flex flex-wrap gap-3">
             <BookingLink className="inline-flex min-h-12 items-center gap-2 rounded-md bg-background px-5 py-3 text-sm font-semibold text-primary hover:bg-background/90"><Phone size={16} aria-hidden="true" /> Időpontot egyeztetek</BookingLink>
             <a href={`mailto:${site.email}`} className="inline-flex min-h-12 items-center gap-2 rounded-md border border-primary-foreground/55 px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/10"><Mail size={16} aria-hidden="true" /> E-mail írása</a>
@@ -673,7 +684,7 @@ export function HomePage() {
       <footer className="bg-foreground px-5 py-7 text-background md:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 text-xs md:grid-cols-[1fr_auto_1fr] md:items-center">
           <p className="text-center md:text-left">Minden jog fenntartva © 2026 BioCare Kozmetika · {site.practitioner}</p>
-          <p className="text-center text-background/75">Készítette: <span className="font-semibold text-background">Hubay Works</span></p>
+          <p className="text-center text-background/75">Készítette: <Link to="/hubay-works" className="font-semibold text-background underline decoration-background/35 underline-offset-4 hover:decoration-background">Hubay Works</Link></p>
           <nav className="flex flex-wrap justify-center gap-x-5 gap-y-2 md:justify-end" aria-label="Jogi információk">
             <Link to="/adatvedelem" className="underline underline-offset-4 hover:text-accent">Adatvédelem</Link>
             <Link to="/impresszum" className="underline underline-offset-4 hover:text-accent">Impresszum</Link>

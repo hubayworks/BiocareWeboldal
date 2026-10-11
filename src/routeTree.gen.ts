@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdatvedelemRouteImport } from './routes/adatvedelem'
 import { Route as GaleriaRouteImport } from './routes/galeria'
+import { Route as HubayWorksRouteImport } from './routes/hubay-works'
 import { Route as ImpresszumRouteImport } from './routes/impresszum'
 
 const IndexRoute = IndexRouteImport.update({
@@ -29,6 +30,11 @@ const GaleriaRoute = GaleriaRouteImport.update({
   path: '/galeria',
   getParentRoute: () => rootRouteImport,
 } as any)
+const HubayWorksRoute = HubayWorksRouteImport.update({
+  id: '/hubay-works',
+  path: '/hubay-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ImpresszumRoute = ImpresszumRouteImport.update({
   id: '/impresszum',
   path: '/impresszum',
@@ -39,12 +45,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
   '/galeria': typeof GaleriaRoute
+  '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
   '/galeria': typeof GaleriaRoute
+  '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRoutesById {
@@ -52,20 +60,28 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
   '/galeria': typeof GaleriaRoute
+  '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/adatvedelem' | '/galeria' | '/impresszum'
+  fullPaths: '/' | '/adatvedelem' | '/galeria' | '/hubay-works' | '/impresszum'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/adatvedelem' | '/galeria' | '/impresszum'
-  id: '__root__' | '/' | '/adatvedelem' | '/galeria' | '/impresszum'
+  to: '/' | '/adatvedelem' | '/galeria' | '/hubay-works' | '/impresszum'
+  id:
+    | '__root__'
+    | '/'
+    | '/adatvedelem'
+    | '/galeria'
+    | '/hubay-works'
+    | '/impresszum'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdatvedelemRoute: typeof AdatvedelemRoute
   GaleriaRoute: typeof GaleriaRoute
+  HubayWorksRoute: typeof HubayWorksRoute
   ImpresszumRoute: typeof ImpresszumRoute
 }
 
@@ -92,6 +108,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof GaleriaRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/hubay-works': {
+      id: '/hubay-works'
+      path: '/hubay-works'
+      fullPath: '/hubay-works'
+      preLoaderRoute: typeof HubayWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/impresszum': {
       id: '/impresszum'
       path: '/impresszum'
@@ -106,6 +129,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdatvedelemRoute: AdatvedelemRoute,
   GaleriaRoute: GaleriaRoute,
+  HubayWorksRoute: HubayWorksRoute,
   ImpresszumRoute: ImpresszumRoute,
 }
 export const routeTree = rootRouteImport
