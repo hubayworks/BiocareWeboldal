@@ -189,17 +189,13 @@ function Hero() {
       />
       <div className="bg-hero-shade absolute inset-0" aria-hidden="true" />
       <div className="relative mx-auto flex min-h-[66svh] max-w-7xl items-center px-5 py-16 md:min-h-[68svh] md:px-8 md:py-20">
-        <div className="relative z-10 max-w-4xl">
+        <div className="relative z-10 max-w-4xl translate-x-3 md:translate-x-8">
           <h1 className="font-display text-5xl font-medium leading-[0.98] text-hero-foreground drop-shadow-md sm:text-6xl lg:text-7xl">
             Természetes bőrápolás.
             <br />
             <em className="font-normal text-accent">Egy kis idő önmagadra.</em>
           </h1>
           <div className="mt-8 flex max-w-4xl flex-wrap items-center gap-3 sm:gap-4">
-            <a href={site.phoneHref} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/35 bg-black/20 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition-colors hover:bg-black/35">
-              <Phone size={17} aria-hidden="true" />
-              <span>{site.phone}</span>
-            </a>
             <a href="#arlista" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#F4EBDD]/70 bg-[#F4EBDD]/90 px-4 py-2 text-xs font-semibold text-[#35432E] shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#FFFDF7] sm:px-5 md:text-sm">
               Árlista <ArrowDownRight size={15} aria-hidden="true" />
             </a>
