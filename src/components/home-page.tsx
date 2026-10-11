@@ -195,7 +195,7 @@ function Hero() {
             <br />
             <em className="font-normal text-accent">Egy kis idő önmagadra.</em>
           </h1>
-          <div className="mt-8 flex max-w-4xl flex-wrap items-center gap-3 sm:gap-4 md:flex-nowrap">
+          <div className="mt-8 flex max-w-4xl translate-y-2 flex-wrap items-center gap-3 sm:gap-4 md:translate-x-28 md:translate-y-3 md:flex-nowrap">
             <a href="#arlista" className="inline-flex min-h-11 shrink-0 items-center gap-2 whitespace-nowrap rounded-full border border-[#F4EBDD]/40 bg-[#F4EBDD]/45 px-4 py-2 text-xs font-semibold text-[#35432E] backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#F4EBDD]/65 sm:px-5 md:text-sm">
               Árlista <ArrowDownRight size={15} aria-hidden="true" />
             </a>
