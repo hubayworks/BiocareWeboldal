@@ -54,6 +54,9 @@ const appMenuLinks = [
   { label: "Bemutatkozás", href: "/#bemutatkozas" },
   { label: "Újdonságok", href: "/#uj-kinalat" },
   { label: "Kapcsolat", href: "/#kapcsolat" },
+  { label: "Vélemények", href: "/velemenyek" },
+  { label: "Galéria", href: "/galeria" },
+  { label: "Kérdőívek", href: "/kerdoivek" },
 ];
 
 const mobileTabs = [
@@ -209,20 +212,12 @@ export function MobileAppNavigation() {
             </div>
             <button type="button" onClick={() => setMenuOpen(false)} aria-label="Menü bezárása" className="grid size-11 place-items-center rounded-full bg-primary/10 text-primary"><X size={19} aria-hidden="true" /></button>
           </div>
-          <p className="mb-2 px-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">BioCare fő részei</p>
-          <nav className="grid grid-cols-2 gap-2" aria-label="BioCare fő részei">
+          <nav className="grid grid-cols-2 gap-2" aria-label="Menüoldalak">
             {appMenuLinks.map((item) => (
               <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground transition-colors active:bg-primary/10">
                 {item.label}
               </a>
             ))}
-          </nav>
-          <p className="mb-2 mt-5 px-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Új oldalak</p>
-          <nav className="grid grid-cols-2 gap-2" aria-label="Új oldalak">
-            <Link to="/velemeny-irasa" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Vélemény írása</Link>
-            <Link to="/velemenyek" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Vélemények</Link>
-            <Link to="/galeria" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Galéria</Link>
-            <Link to="/kerdoivek" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Kérdőívek</Link>
           </nav>
         </div>
       )}
