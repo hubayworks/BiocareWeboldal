@@ -65,6 +65,21 @@
     linear-gradient(180deg, transparent 0%, oklch(0.18 0.015 95 / 8%) 22%, oklch(0.18 0.015 95 / 26%) 58%, oklch(0.18 0.015 95 / 44%) 100%),
     linear-gradient(90deg, oklch(0.18 0.015 95 / 28%) 0%, oklch(0.18 0.015 95 / 16%) 55%, transparent 100%);
 }
+@keyframes nav-border-glow {
+  from { background-position: 0 0, 0% 50%; }
+  to { background-position: 0 0, 100% 50%; }
+}
+.nav-gradient-glass {
+  border: 1px solid transparent;
+  background-image:
+    linear-gradient(120deg, rgb(255 255 255 / 68%), rgb(255 255 255 / 50%) 52%, rgb(255 255 255 / 62%)),
+    linear-gradient(105deg, rgb(255 255 255 / 98%), rgb(255 255 255 / 34%) 28%, rgb(255 255 255 / 90%) 60%, rgb(255 255 255 / 48%));
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+  background-size: 100% 100%, 220% 220%;
+  background-position: 0 0, 0% 50%;
+  animation: nav-border-glow 12s ease-in-out infinite alternate;
+}
 @keyframes appear { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 .animate-appear { animation: appear .6s ease-out both; }
 .scroll-reveal { opacity: 0; transform: translateY(18px); transition: opacity .65s ease, transform .65s cubic-bezier(.2,.7,.2,1); }

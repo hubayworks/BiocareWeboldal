@@ -137,14 +137,14 @@ function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
       Új vendégeinknek 15% kedvezmény
     </aside>
     <header className={`fixed inset-x-0 top-11 z-40 px-5 transition-[opacity,transform] duration-500 ease-out md:px-8 ${hideDuringPortrait ? "pointer-events-none -translate-y-8 opacity-0" : "translate-y-0 opacity-100"}`} inert={hideDuringPortrait}>
-      <div className="mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-2xl border border-white/80 bg-white/55 px-4 text-foreground shadow-lg shadow-foreground/10 backdrop-blur-md md:h-[72px] md:rounded-full md:px-7">
+      <div className="nav-gradient-glass mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-2xl px-4 text-foreground shadow-lg shadow-foreground/10 backdrop-blur-md md:h-[72px] md:rounded-full md:px-7">
         <a href="#top" aria-label="BioCare Kozmetika – főoldal" className="shrink-0">
           <img src={logo} alt="BioCare Kozmetika" className="h-12 w-32 object-contain md:h-14 md:w-40" />
         </a>
         <nav className="hidden flex-1 items-center justify-center gap-4 md:flex lg:gap-7" aria-label="Fő navigáció">
           {navigation.map((item) => <a key={item.href} href={item.href} className="text-sm font-semibold text-foreground transition-colors hover:text-primary">{item.label}</a>)}
         </nav>
-        <BookingLink className="hidden min-h-11 items-center gap-2 rounded-full bg-[#A8B98A] px-4 py-2 text-xs font-semibold text-[#26351C] transition-colors hover:bg-[#9EAF80] md:inline-flex md:text-sm">
+        <BookingLink className="hidden min-h-11 items-center gap-2 rounded-full bg-gradient-to-r from-[#B7C99A] via-[#A8B98A] to-[#93A978] px-4 py-2 text-xs font-semibold text-[#26351C] transition-colors hover:brightness-105 md:inline-flex md:text-sm">
           Időpontot egyeztetek <ArrowUpRight size={15} aria-hidden="true" />
         </BookingLink>
         <button
