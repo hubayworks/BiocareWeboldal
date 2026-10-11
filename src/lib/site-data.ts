@@ -10,11 +10,24 @@ export const site = {
   website: "https://www.biocarekozmetikapecs.hu/",
   instagram: "https://www.instagram.com/biocarekozm/",
   facebook: "https://www.facebook.com/profile.php?id=100094770294361&locale=hu_HU",
+  tiktok: "https://www.tiktok.com/@biocarekozmetika",
   pricingDates: {
     promotionStartDate: null as string | null,
     promotionEndDate: null as string | null,
     listPriceEffectiveDate: null as string | null,
   },
+};
+
+export const ownerIntroduction = {
+  eyebrow: "Bemutatkozás",
+  title: "Ismerj meg",
+  paragraphs: [
+    "Várlak sok szeretettel Pécsett, a Jókai úti BioCare biokozmetikában.",
+    "A BIOLA kozmetika termékei természetes alapanyagokból készülnek, hiszen mindenki számára fontos az arc és a test szépsége és egészsége, ezért használom én is előszeretettel a munkám során.",
+    "Számomra nagyon fontos a külső megjelenés, amelyhez egy kiegyensúlyozott belső is társul. Ezt is biztosítani tudom számodra a kezelések során. Otthonos, csendes környezetben várlak a belváros szívében!",
+  ],
+  signature: "",
+  cta: "Időpontot egyeztetek",
 };
 
 export const serviceGroups = [
@@ -76,7 +89,8 @@ export const gifts = [
     description:
       "Tervezz előre a bőrápolással! Az öt alkalmas bérletről, az áráról és az érvényességéről érdeklődj nálam.",
     cta: "Érdeklődöm a bérletről",
-    subject: "Érdeklődés arckezelési bérletről",
+    subject: "Arckezelési bérletet szeretnék",
+    requestPrompt: "Arckezelési bérletet szeretnék.",
   },
   {
     id: "ajandekkartya",
@@ -85,7 +99,8 @@ export const gifts = [
     description:
       "Ajándékozz egy kis nyugalmat! A BioCare ajándékkártya minden szolgáltatásra felhasználható.",
     cta: "Ajándékkártyát szeretnék",
-    subject: "Érdeklődés ajándékkártyáról",
+    subject: "Ajándékkártyát szeretnék",
+    requestPrompt: "Ajándékkártyát szeretnék.",
   },
   {
     id: "kezelesi-utalvany",
@@ -94,7 +109,8 @@ export const gifts = [
     description:
       "Válassz egy konkrét kezelést és alkalomszámot, és ajándékozd utalvány formájában! Segítek megtalálni a megfelelő szolgáltatást.",
     cta: "Segítséget kérek",
-    subject: "Érdeklődés kezelési utalványról",
+    subject: "Kezelési utalványt szeretnék",
+    requestPrompt: "Kezelési utalványt szeretnék.",
   },
 ];
 

@@ -4,7 +4,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --radius-sm: 2px; --radius-md: 4px; --radius-lg: 6px;
+  --radius-sm: 4px; --radius-md: 8px; --radius-lg: 14px;
   --color-background: var(--background); --color-foreground: var(--foreground);
   --color-card: var(--card); --color-card-foreground: var(--card-foreground);
   --color-popover: var(--popover); --color-popover-foreground: var(--popover-foreground);
@@ -18,16 +18,16 @@
   --font-display: "Cormorant Garamond", serif; --font-hero-display: "Cormorant Garamond", serif; --font-sans: "DM Sans", sans-serif;
 }
 :root {
-  --background: #F7F4EB; --foreground: #263D2C;
-  --card: #FFFDF7; --card-foreground: #263D2C;
-  --popover: #FFFDF7; --popover-foreground: #263D2C;
-  --primary: #526E50; --primary-foreground: #FFFDF7;
-  --secondary: #EAEFE3; --secondary-foreground: #263D2C;
-  --muted: #EEF0E8; --muted-foreground: #526051;
-  --accent: #D6E49D; --accent-foreground: #263D2C;
+  --background: #FAF8F2; --foreground: #292D27;
+  --card: #FFFEFA; --card-foreground: #292D27;
+  --popover: #FFFEFA; --popover-foreground: #292D27;
+  --primary: #71845E; --primary-foreground: #FFFEFA;
+  --secondary: #EFF3E7; --secondary-foreground: #343B2F;
+  --muted: #F1F0E9; --muted-foreground: #666B60;
+  --accent: #DDECB8; --accent-foreground: #303A24;
   --destructive: oklch(0.56 0.2 25); --destructive-foreground: oklch(1 0 0);
-  --border: #D5DCCB; --input: #D5DCCB; --ring: #526E50;
-  --hero-foreground: #FFFDF7; --footer: #263D2C; --footer-foreground: #FFFDF7; --overlay: rgb(20 34 24 / 92%);
+  --border: #E2E4D9; --input: #E2E4D9; --ring: #71845E;
+  --hero-foreground: #FFFEFA; --footer: #30382D; --footer-foreground: #FFFEFA; --overlay: rgb(35 39 32 / 92%);
 }
 .dark {
   --background: #1E2D22; --foreground: #F7F4EB;
@@ -60,8 +60,29 @@
   .form-input:focus { border-color: var(--color-primary-foreground); }
   .form-input option { color: var(--color-foreground); background: var(--color-background); }
 }
-.bg-hero-shade { background: linear-gradient(90deg, oklch(0.16 0.025 143 / 70%) 0%, oklch(0.18 0.025 143 / 48%) 36%, oklch(0.18 0.025 143 / 4%) 100%); }
+.bg-hero-shade {
+  background:
+    linear-gradient(180deg, transparent 0%, oklch(0.18 0.015 95 / 8%) 22%, oklch(0.18 0.015 95 / 26%) 58%, oklch(0.18 0.015 95 / 44%) 100%),
+    linear-gradient(90deg, oklch(0.18 0.015 95 / 28%) 0%, oklch(0.18 0.015 95 / 16%) 55%, transparent 100%);
+}
 @keyframes appear { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
 .animate-appear { animation: appear .6s ease-out both; }
-@media (max-width: 767px) { .bg-hero-shade { background: linear-gradient(90deg, oklch(0.16 0.025 143 / 68%), oklch(0.18 0.025 143 / 38%)); } }
-@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .animate-appear { animation: none; } *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+.scroll-reveal { opacity: 0; transform: translateY(18px); transition: opacity .65s ease, transform .65s cubic-bezier(.2,.7,.2,1); }
+.scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
+@media (max-width: 767px) {
+  .bg-hero-shade {
+    background:
+      linear-gradient(180deg, transparent 0%, oklch(0.18 0.015 95 / 8%) 18%, oklch(0.18 0.015 95 / 24%) 48%, oklch(0.18 0.015 95 / 40%) 100%),
+      linear-gradient(90deg, oklch(0.18 0.015 95 / 24%), oklch(0.18 0.015 95 / 12%));
+  }
+}
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .animate-appear { animation: none; } .scroll-reveal { opacity: 1; transform: none; } *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+
+@media print {
+  .print-hidden { display: none !important; }
+  main.legal-document { min-height: 0 !important; padding: 0 !important; background: #fff !important; color: #111 !important; }
+  main.legal-document > div { max-width: none !important; }
+  main.legal-document h1, main.legal-document h2 { break-after: avoid-page; }
+  main.legal-document section { break-inside: auto; }
+  main.legal-document a { color: #111 !important; text-decoration: none !important; }
+}
