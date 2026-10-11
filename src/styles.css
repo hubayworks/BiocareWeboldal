@@ -86,12 +86,11 @@
 .scroll-reveal.is-visible { opacity: 1; transform: translateY(0); }
 @media (max-width: 767px) {
   html { scroll-padding-top: 8.25rem; }
-  body { overscroll-behavior-x: none; -webkit-tap-highlight-color: transparent; }
+  body { padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)); overscroll-behavior-x: none; -webkit-tap-highlight-color: transparent; }
   .mobile-promo { height: calc(2.25rem + env(safe-area-inset-top, 0px)); padding-top: env(safe-area-inset-top, 0px); }
   .mobile-site-header { top: calc(env(safe-area-inset-top, 0px) + 2.75rem); }
   .mobile-app-nav { padding-bottom: env(safe-area-inset-bottom, 0px); }
   .mobile-app-sheet { bottom: calc(4.25rem + env(safe-area-inset-bottom, 0px) + .75rem); }
-  .home-app-shell { padding-bottom: calc(4.75rem + env(safe-area-inset-bottom, 0px)); }
   .home-app-shell main > section[id] { scroll-margin-top: 8.25rem; }
   .home-app-shell button, .home-app-shell a { touch-action: manipulation; }
   .home-app-shell #szolgaltatasok,

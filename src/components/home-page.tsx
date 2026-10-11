@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import {
   ArrowDownRight,
   ArrowUpRight,
@@ -51,17 +51,17 @@ const navigation = [
 ];
 
 const appMenuLinks = [
-  { label: "Kezdőlap", href: "#top" },
-  { label: "Bemutatkozás", href: "#bemutatkozas" },
-  { label: "Újdonságok", href: "#uj-kinalat" },
-  ...navigation,
+  { label: "Kezdőlap", href: "/#top" },
+  { label: "Bemutatkozás", href: "/#bemutatkozas" },
+  { label: "Újdonságok", href: "/#uj-kinalat" },
+  ...navigation.map((item) => ({ ...item, href: `/${item.href}` })),
 ];
 
 const mobileTabs = [
-  { label: "Kezdőlap", href: "#top", icon: House, section: "top" },
-  { label: "Szolgáltatás", href: "#szolgaltatasok", icon: Sparkles, section: "szolgaltatasok" },
-  { label: "Árlista", href: "#arlista", icon: BadgePercent, section: "arlista" },
-  { label: "Ajándék", href: "#ajandekozas", icon: Gift, section: "ajandekozas" },
+  { label: "Kezdőlap", href: "/#top", icon: House, section: "top" },
+  { label: "Szolgáltatás", href: "/#szolgaltatasok", icon: Sparkles, section: "szolgaltatasok" },
+  { label: "Árlista", href: "/#arlista", icon: BadgePercent, section: "arlista" },
+  { label: "Ajándék", href: "/#ajandekozas", icon: Gift, section: "ajandekozas" },
 ];
 
 function formatPrice(amount: number) {
@@ -193,11 +193,16 @@ function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
   );
 }
 
-function MobileAppNavigation() {
-  const [activeSection, setActiveSection] = useState("top");
+export function MobileAppNavigation() {
+  const [activeSection, setActiveSection] = useState("");
   const [menuOpen, setMenuOpen] = useState(false);
+  const pathname = useRouterState({ select: (state) => state.location.pathname });
 
   useEffect(() => {
+    if (pathname !== "/") {
+      setActiveSection("");
+      return;
+    }
     const observedSections = mobileTabs
       .map((tab) => document.getElementById(tab.section))
       .filter((element): element is HTMLElement => Boolean(element));
@@ -214,7 +219,7 @@ function MobileAppNavigation() {
     );
     observedSections.forEach((section) => observer.observe(section));
     return () => observer.disconnect();
-  }, []);
+  }, [pathname]);
 
   return (
     <>
@@ -227,16 +232,19 @@ function MobileAppNavigation() {
             </div>
             <button type="button" onClick={() => setMenuOpen(false)} aria-label="Menü bezárása" className="grid size-11 place-items-center rounded-full bg-primary/10 text-primary"><X size={19} aria-hidden="true" /></button>
           </div>
-          <nav className="grid grid-cols-2 gap-2" aria-label="Összes oldal és szekció">
+          <p className="mb-2 px-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">BioCare fő részei</p>
+          <nav className="grid grid-cols-2 gap-2" aria-label="BioCare fő részei">
             {appMenuLinks.map((item) => (
               <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground transition-colors active:bg-primary/10">
                 {item.label}
               </a>
             ))}
+          </nav>
+          <p className="mb-2 mt-5 px-1 text-[10px] font-bold uppercase tracking-[0.18em] text-muted-foreground">Új oldalak</p>
+          <nav className="grid grid-cols-2 gap-2" aria-label="Új oldalak">
+            <Link to="/velemeny-irasa" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Vélemény írása</Link>
+            <Link to="/velemenyek" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Vélemények</Link>
             <Link to="/galeria" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Galéria</Link>
-            <Link to="/hubay-works" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Hubay Works</Link>
-            <Link to="/adatvedelem" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Adatvédelem</Link>
-            <Link to="/impresszum" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Impresszum</Link>
           </nav>
         </div>
       )}
@@ -779,7 +787,6 @@ export function HomePage() {
           </nav>
         </div>
       </footer>
-      <MobileAppNavigation />
     </div>
   );
 }
