@@ -605,7 +605,6 @@ function ContactSection() {
         </ScrollReveal>
         <ScrollReveal>
         <div className="flex flex-col gap-4 border-t border-primary-foreground/30 pt-6 lg:items-end lg:border-l lg:border-t-0 lg:pt-0 lg:pl-10">
-          <p className="max-w-lg text-sm leading-7 text-primary-foreground/85 lg:text-right">Időpont-egyeztetéshez és az ajándékozási lehetőségekkel kapcsolatos kérdéseidhez keress telefonon vagy e-mailben.</p>
           <Link to="/hubay-works" className="group flex w-full max-w-lg items-center gap-3 rounded-2xl border border-white/45 bg-white/10 p-3.5 text-left shadow-[0_10px_35px_rgb(20_30_20/0.12)] backdrop-blur-sm transition-colors hover:bg-white/15">
             <span className="grid size-14 shrink-0 place-items-center overflow-hidden rounded-xl border border-white/65 bg-white/90 p-1.5 shadow-sm">
               <img src={hubayWorksLogo} alt="" aria-hidden="true" className="h-full w-full object-contain" />
@@ -616,6 +615,7 @@ function ContactSection() {
             </span>
             <ArrowUpRight size={17} className="shrink-0 transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5" aria-hidden="true" />
           </Link>
+          <p className="max-w-lg text-sm leading-7 text-primary-foreground/85 lg:text-right">Időpont-egyeztetéshez és az ajándékozási lehetőségekkel kapcsolatos kérdéseidhez keress telefonon vagy e-mailben.</p>
           <div className="flex flex-wrap gap-3">
             <BookingLink className="inline-flex min-h-12 items-center gap-2 rounded-md bg-background px-5 py-3 text-sm font-semibold text-primary hover:bg-background/90"><Phone size={16} aria-hidden="true" /> Időpontot egyeztetek</BookingLink>
             <a href={`mailto:${site.email}`} className="inline-flex min-h-12 items-center gap-2 rounded-md border border-primary-foreground/55 px-5 py-3 text-sm font-semibold text-primary-foreground hover:bg-primary-foreground/10"><Mail size={16} aria-hidden="true" /> E-mail írása</a>
