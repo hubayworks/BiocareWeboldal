@@ -16,7 +16,6 @@ import {
   MapPin,
   Music2,
   Phone,
-  PanelsTopLeft,
   RotateCw,
   Sparkles,
   X,
@@ -52,10 +51,9 @@ const navigation = [
 ];
 
 const appMenuLinks = [
-  { label: "Kezdőlap", href: "/#top" },
   { label: "Bemutatkozás", href: "/#bemutatkozas" },
   { label: "Újdonságok", href: "/#uj-kinalat" },
-  ...navigation.map((item) => ({ ...item, href: `/${item.href}` })),
+  { label: "Kapcsolat", href: "/#kapcsolat" },
 ];
 
 const mobileTabs = [
@@ -240,7 +238,7 @@ export function MobileAppNavigation() {
             );
           })}
           <button type="button" onClick={() => setMenuOpen((open) => !open)} aria-expanded={menuOpen} aria-label={menuOpen ? "Menü bezárása" : "További oldalak megnyitása"} className={`flex min-w-0 flex-1 flex-col items-center justify-center gap-1 rounded-2xl px-1 text-center transition-colors active:scale-[0.97] ${menuOpen ? "text-primary" : "text-muted-foreground"}`}>
-            <span className={`grid size-7 place-items-center rounded-full ${menuOpen ? "bg-primary/10" : ""}`}>{menuOpen ? <X size={19} aria-hidden="true" /> : <PanelsTopLeft size={19} aria-hidden="true" />}</span>
+            <span className={`grid size-7 place-items-center rounded-full ${menuOpen ? "bg-primary/10" : ""}`}>{menuOpen ? <X size={19} aria-hidden="true" /> : <Mail size={19} aria-hidden="true" />}</span>
             <span className="text-[9px] font-semibold leading-none">Menü</span>
           </button>
         </div>
