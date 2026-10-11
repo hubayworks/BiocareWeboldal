@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { Archive, Check, Download, LockKeyhole, LogOut, Mail, RotateCcw, Star, Trash2 } from "lucide-react";
 
@@ -28,6 +28,7 @@ function ReviewAdminPage() {
   const [handoffEnabled, setHandoffEnabled] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const autoLoginToken = useRef("");
 
   const loadReviews = async (nextStatus = status) => {
     setLoading(true);
@@ -45,7 +46,7 @@ function ReviewAdminPage() {
     } finally { setLoading(false); }
   };
 
-  useEffect(() => { void loadReviews(); }, [status]);
+  useEffect(() => { if (!token) void loadReviews(); }, [status, token]);
 
   const post = async (body: Record<string, unknown>, extraHeaders: Record<string, string> = {}) => {
     const response = await fetch("/api/reviews/admin", {
@@ -85,6 +86,16 @@ function ReviewAdminPage() {
     finally { setBusy(false); }
   };
 
+  // Links sent to the configured admin mailbox carry a single-use token.
+  // Consume it automatically so the email's “Open admin panel” button lands
+  // directly in the dashboard instead of asking for another click.
+  useEffect(() => {
+    if (token && autoLoginToken.current !== token) {
+      autoLoginToken.current = token;
+      void login();
+    }
+  }, [token]);
+
   const act = async (review: Review, action: "archive" | "restore" | "delete" | "purge") => {
     if (action === "purge" && !window.confirm("Véglegesen törlöd ezt a véleményt? Ezután már nem állítható vissza.")) return;
     setBusy(true); setError(""); setMessage("");
@@ -111,8 +122,8 @@ function ReviewAdminPage() {
           <section className="mt-8 rounded-3xl border border-primary/10 bg-background p-6 shadow-sm sm:p-8">
             <LockKeyhole className="text-primary" size={25} />
             <h2 className="mt-4 font-display text-2xl">Admin belépés szükséges</h2>
-            <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">Kérj egyszer használható belépőlinket. A link az admin postafiókba érkezik, 20 percig érvényes, és csak egyszer használható.</p>
-            {token ? <button onClick={() => void login()} disabled={busy} className="mt-5 inline-flex min-h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-white disabled:opacity-60"><LockKeyhole size={17} /> {busy ? "Beléptetés…" : "Belépek az e-mailes linkkel"}</button> : <button onClick={() => void requestAccess()} disabled={busy} className="mt-5 inline-flex min-h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-white disabled:opacity-60"><Mail size={17} /> {busy ? "Küldés…" : "Belépőlinket kérek e-mailben"}</button>}
+            <p className="mt-2 max-w-xl text-sm leading-6 text-muted-foreground">A biztonságos belépőlink az admin postafiókba érkezik, 20 percig érvényes, és csak egyszer használható. Az e-mailben lévő Adminpanel megnyitása gomb közvetlenül beléptet.</p>
+            {token ? <p className="mt-5 text-sm text-muted-foreground">{busy ? "Biztonságos beléptetés…" : "A belépőlink ellenőrzése folyamatban."}</p> : <button onClick={() => void requestAccess()} disabled={busy} className="mt-5 inline-flex min-h-12 w-full max-w-sm items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-white disabled:opacity-60"><Mail size={17} /> {busy ? "Küldés…" : "Belépőlinket kérek e-mailben"}</button>}
             {message && <p role="status" className="mt-4 text-sm text-primary">{message}</p>}
             {error && <p role="alert" className="mt-4 text-sm text-destructive">{error}</p>}
           </section>
