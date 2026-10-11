@@ -1,3 +1,6 @@
+Warning: truncated output (original token count: 6097)
+Total output lines: 404
+
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import mysql from "mysql2/promise";
 import nodemailer from "nodemailer";
@@ -200,9 +203,9 @@ export async function requestReviewAdminAccess(request: Request) {
   await adminTransport().sendMail({
     to: currentAdminEmail(),
     from: process.env.SMTP_FROM || process.env.SMTP_USER,
-    subject: "BioCare véleménykezelő – biztonságos belépési link",
-    text: `A BioCare admin felületéhez egyszer használható belépési linket kértél. A link 20 percig érvényes: ${loginUrl}\n\nHa nem te kérted, hagyd figyelmen kívül ezt az e-mailt.`,
-    html: `<main style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#283126"><h1>Biztonságos belépés</h1><p>A BioCare véleménykezelő megnyitásához kattints az alábbi gombra. A link egyszer használható, és 20 percig érvényes.</p><p><a href="${escapeHtml(loginUrl)}" style="display:inline-block;padding:14px 20px;border-radius:24px;background:#71845e;color:white;text-decoration:none;font-weight:bold">Belépés a véleménykezelőbe</a></p><p>Ha nem te kérted ezt a belépést, hagyd figyelmen kívül az üzenetet.</p></main>`,
+    subject: "TESZT – BioCare adminpanel elérése",
+    text: `Szia! Ez a tesztlevél a BioCare adminpanel elérését mutatja be. Az Adminpanel megnyitása hivatkozás közvetlenül beléptet a véleménykezelőbe. A hivatkozás egyszer használható, és 20 percig érvényes: ${loginUrl}\n\nHa nem te kérted ezt a tesztet, hagyd figyelmen kívül ezt az e-mailt.`,
+    html: `<main style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#283126"><p>Szia!</p><h1>BioCare adminpanel – teszt</h1><p>Ez a tesztlevél az adminpanel elérését mutatja be. Az alábbi gomb közvetlenül megnyitja a véleménykezelőt és beléptet.</p><p><a href="${escapeHtml(loginUrl)}" style="display:inline-block;padding:14px 20px;border-radius:24px;background:#71845e;color:white;text-decoration:none;font-weight:bold">Adminpanel megnyitása</a></p><p>A hivatkozás az admin postafiókhoz készül, egyszer használható, és 20 percig érvényes.</p><p>Ha nem te kérted ezt a tesztet, hagyd figyelmen kívül ezt az e-mailt.</p></main>`,
   });
 }
 
@@ -245,14 +248,7 @@ export async function sendReviewAdminHandoffEmail(request: Request) {
   if (sentEmail === email) throw new ReviewApiError(409, "Az átadási e-mailt erre a címre már elküldtük.");
   const [claim] = await db.execute<mysql.ResultSetHeader>(
     "UPDATE biocare_review_admin_settings SET welcome_sent_email = 'sending' WHERE id = 1 AND admin_email = ? AND (welcome_sent_email IS NULL OR (welcome_sent_email <> ? AND welcome_sent_email <> 'sending'))",
-    [email, email],
-  );
-  if (claim.affectedRows !== 1) throw new ReviewApiError(409, "Az átadási e-mail már folyamatban van.");
-  try {
-    const token = await createAdminLoginToken();
-    const baseUrl = (process.env.APP_BASE_URL || new URL(request.url).origin).replace(/\/$/, "");
-    const siteUrl = (process.env.PUBLIC_SITE_URL || "https://biocarekozmetikapecs.hu").replace(/\/$/, "");
-    const accessUrl = `${baseUrl}/reviews-admin?token=${encodeURIComponent(token)}`;
+    [email, ema…97 tokens truncated…t accessUrl = `${baseUrl}/reviews-admin?token=${encodeURIComponent(token)}`;
     const links = [
       ["Jóváhagyott vélemények", `${baseUrl}/reviews-admin?status=published`],
       ["Archivált vélemények", `${baseUrl}/reviews-admin?status=archived`],
