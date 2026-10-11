@@ -16,9 +16,11 @@ import { Route as HubayWorksRouteImport } from './routes/hubay-works'
 import { Route as ImpresszumRouteImport } from './routes/impresszum'
 import { Route as KerdoivekRouteImport } from './routes/kerdoivek'
 import { Route as ReviewJovahagyasRouteImport } from './routes/review-jovahagyas'
+import { Route as ReviewsAdminRouteImport } from './routes/reviews-admin'
 import { Route as VelemenyIrasaRouteImport } from './routes/velemeny-irasa'
 import { Route as VelemenyekRouteImport } from './routes/velemenyek'
 import { Route as ApiReviewsRouteImport } from './routes/api.reviews'
+import { Route as ApiReviewsAdminRouteImport } from './routes/api.reviews.admin'
 import { Route as ApiReviewsApprovalRouteImport } from './routes/api.reviews.approval'
 
 const IndexRoute = IndexRouteImport.update({
@@ -56,6 +58,11 @@ const ReviewJovahagyasRoute = ReviewJovahagyasRouteImport.update({
   path: '/review-jovahagyas',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ReviewsAdminRoute = ReviewsAdminRouteImport.update({
+  id: '/reviews-admin',
+  path: '/reviews-admin',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VelemenyIrasaRoute = VelemenyIrasaRouteImport.update({
   id: '/velemeny-irasa',
   path: '/velemeny-irasa',
@@ -71,6 +78,11 @@ const ApiReviewsRoute = ApiReviewsRouteImport.update({
   path: '/api/reviews',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiReviewsAdminRoute = ApiReviewsAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => ApiReviewsRoute,
+} as any)
 const ApiReviewsApprovalRoute = ApiReviewsApprovalRouteImport.update({
   id: '/approval',
   path: '/approval',
@@ -85,9 +97,11 @@ export interface FileRoutesByFullPath {
   '/impresszum': typeof ImpresszumRoute
   '/kerdoivek': typeof KerdoivekRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
+  '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
   '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/reviews/admin': typeof ApiReviewsAdminRoute
   '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
 export interface FileRoutesByTo {
@@ -98,9 +112,11 @@ export interface FileRoutesByTo {
   '/impresszum': typeof ImpresszumRoute
   '/kerdoivek': typeof KerdoivekRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
+  '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
   '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/reviews/admin': typeof ApiReviewsAdminRoute
   '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
 export interface FileRoutesById {
@@ -112,9 +128,11 @@ export interface FileRoutesById {
   '/impresszum': typeof ImpresszumRoute
   '/kerdoivek': typeof KerdoivekRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
+  '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
   '/api/reviews': typeof ApiReviewsRouteWithChildren
+  '/api/reviews/admin': typeof ApiReviewsAdminRoute
   '/api/reviews/approval': typeof ApiReviewsApprovalRoute
 }
 export interface FileRouteTypes {
@@ -127,9 +145,11 @@ export interface FileRouteTypes {
     | '/impresszum'
     | '/kerdoivek'
     | '/review-jovahagyas'
+    | '/reviews-admin'
     | '/velemeny-irasa'
     | '/velemenyek'
     | '/api/reviews'
+    | '/api/reviews/admin'
     | '/api/reviews/approval'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -140,9 +160,11 @@ export interface FileRouteTypes {
     | '/impresszum'
     | '/kerdoivek'
     | '/review-jovahagyas'
+    | '/reviews-admin'
     | '/velemeny-irasa'
     | '/velemenyek'
     | '/api/reviews'
+    | '/api/reviews/admin'
     | '/api/reviews/approval'
   id:
     | '__root__'
@@ -153,9 +175,11 @@ export interface FileRouteTypes {
     | '/impresszum'
     | '/kerdoivek'
     | '/review-jovahagyas'
+    | '/reviews-admin'
     | '/velemeny-irasa'
     | '/velemenyek'
     | '/api/reviews'
+    | '/api/reviews/admin'
     | '/api/reviews/approval'
   fileRoutesById: FileRoutesById
 }
@@ -167,6 +191,7 @@ export interface RootRouteChildren {
   ImpresszumRoute: typeof ImpresszumRoute
   KerdoivekRoute: typeof KerdoivekRoute
   ReviewJovahagyasRoute: typeof ReviewJovahagyasRoute
+  ReviewsAdminRoute: typeof ReviewsAdminRoute
   VelemenyIrasaRoute: typeof VelemenyIrasaRoute
   VelemenyekRoute: typeof VelemenyekRoute
   ApiReviewsRoute: typeof ApiReviewsRouteWithChildren
@@ -223,6 +248,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ReviewJovahagyasRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/reviews-admin': {
+      id: '/reviews-admin'
+      path: '/reviews-admin'
+      fullPath: '/reviews-admin'
+      preLoaderRoute: typeof ReviewsAdminRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/velemeny-irasa': {
       id: '/velemeny-irasa'
       path: '/velemeny-irasa'
@@ -244,6 +276,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiReviewsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/reviews/admin': {
+      id: '/api/reviews/admin'
+      path: '/admin'
+      fullPath: '/api/reviews/admin'
+      preLoaderRoute: typeof ApiReviewsAdminRouteImport
+      parentRoute: typeof ApiReviewsRoute
+    }
     '/api/reviews/approval': {
       id: '/api/reviews/approval'
       path: '/approval'
@@ -255,10 +294,12 @@ declare module '@tanstack/react-router' {
 }
 
 interface ApiReviewsRouteChildren {
+  ApiReviewsAdminRoute: typeof ApiReviewsAdminRoute
   ApiReviewsApprovalRoute: typeof ApiReviewsApprovalRoute
 }
 
 const ApiReviewsRouteChildren: ApiReviewsRouteChildren = {
+  ApiReviewsAdminRoute: ApiReviewsAdminRoute,
   ApiReviewsApprovalRoute: ApiReviewsApprovalRoute,
 }
 
@@ -274,6 +315,7 @@ const rootRouteChildren: RootRouteChildren = {
   ImpresszumRoute: ImpresszumRoute,
   KerdoivekRoute: KerdoivekRoute,
   ReviewJovahagyasRoute: ReviewJovahagyasRoute,
+  ReviewsAdminRoute: ReviewsAdminRoute,
   VelemenyIrasaRoute: VelemenyIrasaRoute,
   VelemenyekRoute: VelemenyekRoute,
   ApiReviewsRoute: ApiReviewsRouteWithChildren,
