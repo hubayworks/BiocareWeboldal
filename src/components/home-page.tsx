@@ -54,7 +54,7 @@ const appMenuLinks = [
   { label: "Bemutatkozás", href: "/#bemutatkozas" },
   { label: "Újdonságok", href: "/#uj-kinalat" },
   { label: "Kapcsolat", href: "/#kapcsolat" },
-  { label: "Belépés / regisztráció", href: "/fiok" },
+  { label: "Belépés / regisztráció", href: "/belepes" },
   { label: "Vélemények", href: "/velemenyek" },
   { label: "Galéria", href: "/galeria" },
   { label: "Kérdőívek", href: "/kerdoivek" },
@@ -169,7 +169,7 @@ function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
           <BookingLink className="inline-flex min-h-11 items-center gap-2 rounded-full bg-gradient-to-r from-[#B7C99A] via-[#A8B98A] to-[#93A978] px-4 py-2 text-xs font-semibold text-[#26351C] transition-colors hover:brightness-105 md:text-sm">
             Időpontot egyeztetek <ArrowUpRight size={15} aria-hidden="true" />
           </BookingLink>
-          <Link to="/fiok" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/25 bg-background/55 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition-colors hover:bg-primary/10 md:text-sm">
+          <Link to="/belepes" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/25 bg-background/55 px-4 py-2 text-xs font-semibold text-primary backdrop-blur-sm transition-colors hover:bg-primary/10 md:text-sm">
             Belépés / regisztráció
           </Link>
         </div>

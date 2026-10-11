@@ -5,9 +5,12 @@ import {
   deleteReviewCustomerSession,
   getReviewCustomer,
   requestReviewCustomerAccess,
+  registerReviewCustomer,
+  signInReviewCustomer,
   reviewCustomerCookie,
   ReviewApiError,
   updateReviewCustomerProfile,
+  updateReviewCustomerPassword,
 } from "../../server/utils/reviews";
 
 function errorResponse(error: unknown) {
@@ -28,12 +31,20 @@ export const Route = createFileRoute("/api/account")({
       POST: async ({ request }) => {
         try {
           assertSameOrigin(request);
-          let body: { action?: unknown; email?: unknown; name?: unknown; phone?: unknown; token?: unknown };
+          let body: { action?: unknown; email?: unknown; name?: unknown; phone?: unknown; token?: unknown; password?: unknown };
           try { body = await request.json() as typeof body; } catch { throw new ReviewApiError(400, "A kérés nem értelmezhető."); }
           const action = String(body.action || "");
           if (action === "request_link") {
             await requestReviewCustomerAccess(request, body.email, body.name, body.phone);
             return Response.json({ ok: true, message: "Ha az e-mail-cím használható, elküldtük a belépőlinket." }, { headers: { "Cache-Control": "no-store" } });
+          }
+          if (action === "register") {
+            await registerReviewCustomer(request, body.email, body.name, body.phone, body.password);
+            return Response.json({ ok: true, message: "Elküldtük a megerősítő linket az e-mail-címedre. A fiók aktiválásához nyisd meg a levelet." }, { headers: { "Cache-Control": "no-store" } });
+          }
+          if (action === "password_login") {
+            const result = await signInReviewCustomer(body.email, body.password);
+            return Response.json({ ok: true, customer: result.customer }, { headers: { "Cache-Control": "no-store", "Set-Cookie": reviewCustomerCookie(result.session, false, new URL(request.url).protocol === "https:") } });
           }
           if (action === "login") {
             const result = await createReviewCustomerSession(typeof body.token === "string" ? body.token : "");
@@ -49,6 +60,12 @@ export const Route = createFileRoute("/api/account")({
             if (!customer) throw new ReviewApiError(401, "A profil módosításához lépj be.");
             const profile = await updateReviewCustomerProfile(customer.id, body.name, body.phone);
             return Response.json({ ok: true, customer: { ...customer, ...profile } }, { headers: { "Cache-Control": "no-store" } });
+          }
+          if (action === "update_password") {
+            const customer = await getReviewCustomer(request);
+            if (!customer) throw new ReviewApiError(401, "A jelszó módosításához lépj be.");
+            await updateReviewCustomerPassword(customer.id, body.password);
+            return Response.json({ ok: true, message: "A jelszavadat biztonságosan frissítettük." }, { headers: { "Cache-Control": "no-store" } });
           }
           throw new ReviewApiError(400, "Válassz érvényes fiókműveletet.");
         } catch (error) { return errorResponse(error); }

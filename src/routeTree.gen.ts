@@ -11,11 +11,13 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdatvedelemRouteImport } from './routes/adatvedelem'
+import { Route as BelepesRouteImport } from './routes/belepes'
 import { Route as FiokRouteImport } from './routes/fiok'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as HubayWorksRouteImport } from './routes/hubay-works'
 import { Route as ImpresszumRouteImport } from './routes/impresszum'
 import { Route as KerdoivekRouteImport } from './routes/kerdoivek'
+import { Route as RegisztracioRouteImport } from './routes/regisztracio'
 import { Route as ReviewJovahagyasRouteImport } from './routes/review-jovahagyas'
 import { Route as ReviewsAdminRouteImport } from './routes/reviews-admin'
 import { Route as VelemenyIrasaRouteImport } from './routes/velemeny-irasa'
@@ -35,6 +37,11 @@ const IndexRoute = IndexRouteImport.update({
 const AdatvedelemRoute = AdatvedelemRouteImport.update({
   id: '/adatvedelem',
   path: '/adatvedelem',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BelepesRoute = BelepesRouteImport.update({
+  id: '/belepes',
+  path: '/belepes',
   getParentRoute: () => rootRouteImport,
 } as any)
 const FiokRoute = FiokRouteImport.update({
@@ -60,6 +67,11 @@ const ImpresszumRoute = ImpresszumRouteImport.update({
 const KerdoivekRoute = KerdoivekRouteImport.update({
   id: '/kerdoivek',
   path: '/kerdoivek',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RegisztracioRoute = RegisztracioRouteImport.update({
+  id: '/regisztracio',
+  path: '/regisztracio',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewJovahagyasRoute = ReviewJovahagyasRouteImport.update({
@@ -116,11 +128,13 @@ const ApiReviewsApprovalRoute = ApiReviewsApprovalRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/belepes': typeof BelepesRoute
   '/fiok': typeof FiokRoute
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
   '/kerdoivek': typeof KerdoivekRoute
+  '/regisztracio': typeof RegisztracioRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
@@ -135,11 +149,13 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/belepes': typeof BelepesRoute
   '/fiok': typeof FiokRoute
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
   '/kerdoivek': typeof KerdoivekRoute
+  '/regisztracio': typeof RegisztracioRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
@@ -155,11 +171,13 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/adatvedelem': typeof AdatvedelemRoute
+  '/belepes': typeof BelepesRoute
   '/fiok': typeof FiokRoute
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
   '/kerdoivek': typeof KerdoivekRoute
+  '/regisztracio': typeof RegisztracioRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/reviews-admin': typeof ReviewsAdminRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
@@ -176,11 +194,13 @@ export interface FileRouteTypes {
   fullPaths:
     | '/'
     | '/adatvedelem'
+    | '/belepes'
     | '/fiok'
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
     | '/kerdoivek'
+    | '/regisztracio'
     | '/review-jovahagyas'
     | '/reviews-admin'
     | '/velemeny-irasa'
@@ -195,11 +215,13 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/adatvedelem'
+    | '/belepes'
     | '/fiok'
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
     | '/kerdoivek'
+    | '/regisztracio'
     | '/review-jovahagyas'
     | '/reviews-admin'
     | '/velemeny-irasa'
@@ -214,11 +236,13 @@ export interface FileRouteTypes {
     | '__root__'
     | '/'
     | '/adatvedelem'
+    | '/belepes'
     | '/fiok'
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
     | '/kerdoivek'
+    | '/regisztracio'
     | '/review-jovahagyas'
     | '/reviews-admin'
     | '/velemeny-irasa'
@@ -234,11 +258,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdatvedelemRoute: typeof AdatvedelemRoute
+  BelepesRoute: typeof BelepesRoute
   FiokRoute: typeof FiokRoute
   GaleriaRoute: typeof GaleriaRoute
   HubayWorksRoute: typeof HubayWorksRoute
   ImpresszumRoute: typeof ImpresszumRoute
   KerdoivekRoute: typeof KerdoivekRoute
+  RegisztracioRoute: typeof RegisztracioRoute
   ReviewJovahagyasRoute: typeof ReviewJovahagyasRoute
   ReviewsAdminRoute: typeof ReviewsAdminRoute
   VelemenyIrasaRoute: typeof VelemenyIrasaRoute
@@ -261,6 +287,13 @@ declare module '@tanstack/react-router' {
       path: '/adatvedelem'
       fullPath: '/adatvedelem'
       preLoaderRoute: typeof AdatvedelemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/belepes': {
+      id: '/belepes'
+      path: '/belepes'
+      fullPath: '/belepes'
+      preLoaderRoute: typeof BelepesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/fiok': {
@@ -296,6 +329,13 @@ declare module '@tanstack/react-router' {
       path: '/kerdoivek'
       fullPath: '/kerdoivek'
       preLoaderRoute: typeof KerdoivekRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/regisztracio': {
+      id: '/regisztracio'
+      path: '/regisztracio'
+      fullPath: '/regisztracio'
+      preLoaderRoute: typeof RegisztracioRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/review-jovahagyas': {
@@ -402,11 +442,13 @@ const ApiReviewsRouteWithChildren = ApiReviewsRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdatvedelemRoute: AdatvedelemRoute,
+  BelepesRoute: BelepesRoute,
   FiokRoute: FiokRoute,
   GaleriaRoute: GaleriaRoute,
   HubayWorksRoute: HubayWorksRoute,
   ImpresszumRoute: ImpresszumRoute,
   KerdoivekRoute: KerdoivekRoute,
+  RegisztracioRoute: RegisztracioRoute,
   ReviewJovahagyasRoute: ReviewJovahagyasRoute,
   ReviewsAdminRoute: ReviewsAdminRoute,
   VelemenyIrasaRoute: VelemenyIrasaRoute,

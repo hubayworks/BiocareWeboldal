@@ -1,4 +1,4 @@
-import { createHash, randomBytes, randomUUID } from "node:crypto";
+import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
 import mysql from "mysql2/promise";
 import nodemailer from "nodemailer";
 
@@ -106,6 +106,7 @@ export async function ensureReviewSchema() {
           email VARCHAR(254) NOT NULL UNIQUE,
           display_name VARCHAR(80) NOT NULL,
           phone VARCHAR(40) NOT NULL DEFAULT '',
+          password_hash VARCHAR(255) NULL,
           email_verified_at DATETIME NULL,
           created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
@@ -116,6 +117,7 @@ export async function ensureReviewSchema() {
           email VARCHAR(254) NOT NULL,
           display_name VARCHAR(80) NOT NULL,
           phone VARCHAR(40) NOT NULL DEFAULT '',
+          password_hash VARCHAR(255) NULL,
           created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
           expires_at DATETIME NOT NULL,
           used_at DATETIME NULL,
@@ -124,8 +126,12 @@ export async function ensureReviewSchema() {
       `);
       const [customerPhoneColumns] = await db.query<mysql.RowDataPacket[]>("SHOW COLUMNS FROM biocare_review_customers LIKE 'phone'");
       if (customerPhoneColumns.length === 0) await db.query("ALTER TABLE biocare_review_customers ADD COLUMN phone VARCHAR(40) NOT NULL DEFAULT ''");
+      const [customerPasswordColumns] = await db.query<mysql.RowDataPacket[]>("SHOW COLUMNS FROM biocare_review_customers LIKE 'password_hash'");
+      if (customerPasswordColumns.length === 0) await db.query("ALTER TABLE biocare_review_customers ADD COLUMN password_hash VARCHAR(255) NULL");
       const [customerTokenPhoneColumns] = await db.query<mysql.RowDataPacket[]>("SHOW COLUMNS FROM biocare_review_customer_tokens LIKE 'phone'");
       if (customerTokenPhoneColumns.length === 0) await db.query("ALTER TABLE biocare_review_customer_tokens ADD COLUMN phone VARCHAR(40) NOT NULL DEFAULT ''");
+      const [customerTokenPasswordColumns] = await db.query<mysql.RowDataPacket[]>("SHOW COLUMNS FROM biocare_review_customer_tokens LIKE 'password_hash'");
+      if (customerTokenPasswordColumns.length === 0) await db.query("ALTER TABLE biocare_review_customer_tokens ADD COLUMN password_hash VARCHAR(255) NULL");
       await db.query(`
         CREATE TABLE IF NOT EXISTS biocare_review_customer_sessions (
           token_hash CHAR(64) NOT NULL PRIMARY KEY,
@@ -305,6 +311,73 @@ export async function requestReviewCustomerAccess(request: Request, rawEmail: un
   });
 }
 
+function passwordHash(password: string) {
+  const salt = randomBytes(16);
+  const derived = scryptSync(password, salt, 64);
+  return `scrypt$${salt.toString("base64url")}$${derived.toString("base64url")}`;
+}
+
+function verifyPassword(password: string, encoded: string | null) {
+  if (!encoded) return false;
+  const [algorithm, saltText, hashText] = encoded.split("$");
+  if (algorithm !== "scrypt" || !saltText || !hashText) return false;
+  try {
+    const expected = Buffer.from(hashText, "base64url");
+    const actual = scryptSync(password, Buffer.from(saltText, "base64url"), expected.length);
+    return expected.length === actual.length && timingSafeEqual(expected, actual);
+  } catch { return false; }
+}
+
+export async function registerReviewCustomer(request: Request, rawEmail: unknown, rawName: unknown, rawPhone: unknown, rawPassword: unknown) {
+  const password = typeof rawPassword === "string" ? rawPassword : "";
+  if (password.length < 12 || password.length > 200) throw new ReviewApiError(400, "A jelszó legalább 12 karakter legyen.");
+  await ensureReviewSchema();
+  const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
+  const name = typeof rawName === "string" ? rawName.trim() : "";
+  const phone = typeof rawPhone === "string" ? rawPhone.trim() : "";
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) || email.length > 254 || name.length < 2 || name.length > 80 || phone.replace(/[\s()+.-]/g, "").length < 7 || phone.length > 40) {
+    throw new ReviewApiError(400, "Töltsd ki érvényes névvel, e-mail-címmel és telefonszámmal az összes mezőt.");
+  }
+  if (email === currentAdminEmail().toLowerCase()) throw new ReviewApiError(403, "Ez az e-mail-cím az adminbelépéshez van fenntartva.");
+  const ip = request.headers.get("x-forwarded-for")?.split(",")[0]?.trim() || "unknown";
+  const now = Date.now();
+  const recent = (customerLoginRequests.get(ip) ?? []).filter((time) => now - time < 15 * 60_000);
+  if (recent.length >= 3) throw new ReviewApiError(429, "Túl sok regisztrációs kérés. Próbáld újra később.");
+  recent.push(now);
+  customerLoginRequests.set(ip, recent);
+  const token = randomBytes(32).toString("base64url");
+  await getPool().execute("INSERT INTO biocare_review_customer_tokens (token_hash, email, display_name, phone, password_hash, expires_at) VALUES (?, ?, ?, ?, ?, ?)", [sha256(token), email, name, phone, passwordHash(password), new Date(now + 20 * 60_000)]);
+  const baseUrl = (process.env.APP_BASE_URL || new URL(request.url).origin).replace(/\/$/, "");
+  const verifyUrl = `${baseUrl}/fiok?token=${encodeURIComponent(token)}`;
+  await adminTransport().sendMail({
+    to: email,
+    from: process.env.SMTP_FROM || process.env.SMTP_USER,
+    subject: "BioCare-fiók megerősítése",
+    text: `Szia ${name}!\n\nA regisztráció befejezéséhez erősítsd meg az e-mail-címed a hivatkozással: ${verifyUrl}\n\nA link egyszer használható és 20 percig érvényes. Ha nem te kérted, hagyd figyelmen kívül ezt az e-mailt.`,
+    html: `<main style="font-family:Arial,sans-serif;max-width:600px;margin:auto;color:#283126"><p>Szia ${escapeHtml(name)}!</p><h1>BioCare-fiók megerősítése</h1><p>A regisztráció befejezéséhez erősítsd meg az e-mail-címed.</p><p><a href="${escapeHtml(verifyUrl)}" style="display:inline-block;padding:14px 20px;border-radius:24px;background:#71845e;color:white;text-decoration:none;font-weight:bold">E-mail-cím megerősítése</a></p><p>A link egyszer használható és 20 percig érvényes.</p></main>`,
+  });
+}
+
+export async function signInReviewCustomer(rawEmail: unknown, rawPassword: unknown) {
+  await ensureReviewSchema();
+  const email = typeof rawEmail === "string" ? rawEmail.trim().toLowerCase() : "";
+  const password = typeof rawPassword === "string" ? rawPassword : "";
+  if (email === currentAdminEmail().toLowerCase()) throw new ReviewApiError(403, "Az adminfelületre az admin postafiókba kért biztonságos belépőlinkkel lépj be.");
+  const ipKey = `password:${email}`;
+  const now = Date.now();
+  const recent = (customerLoginRequests.get(ipKey) ?? []).filter((time) => now - time < 15 * 60_000);
+  if (recent.length >= 8) throw new ReviewApiError(429, "Túl sok sikertelen belépési kísérlet. Próbáld újra később.");
+  recent.push(now);
+  customerLoginRequests.set(ipKey, recent);
+  const [rows] = await getPool().execute<mysql.RowDataPacket[]>("SELECT id, email, display_name AS displayName, phone, password_hash AS passwordHash FROM biocare_review_customers WHERE email = ? AND email_verified_at IS NOT NULL LIMIT 1", [email]);
+  const row = rows[0];
+  if (!row || !verifyPassword(password, row.passwordHash ? String(row.passwordHash) : null)) throw new ReviewApiError(401, "Az e-mail-cím vagy a jelszó nem megfelelő.");
+  const customer: ReviewCustomer = { id: String(row.id), email: String(row.email), name: String(row.displayName), phone: String(row.phone || "") };
+  const session = randomBytes(32).toString("base64url");
+  await getPool().execute("INSERT INTO biocare_review_customer_sessions (token_hash, customer_id, expires_at) VALUES (?, ?, ?)", [sha256(session), customer.id, new Date(Date.now() + 8 * 60 * 60_000)]);
+  return { session, customer };
+}
+
 export async function createReviewCustomerSession(token: string): Promise<{ session: string; customer: ReviewCustomer } | null> {
   await ensureReviewSchema();
   if (token.length < 32 || token.length > 128) return null;
@@ -312,12 +385,12 @@ export async function createReviewCustomerSession(token: string): Promise<{ sess
   const hash = sha256(token);
   const [claim] = await db.execute<mysql.ResultSetHeader>("UPDATE biocare_review_customer_tokens SET used_at = NOW() WHERE token_hash = ? AND used_at IS NULL AND expires_at > NOW()", [hash]);
   if (claim.affectedRows !== 1) return null;
-  const [tokens] = await db.execute<mysql.RowDataPacket[]>("SELECT email, display_name AS displayName, phone FROM biocare_review_customer_tokens WHERE token_hash = ? LIMIT 1", [hash]);
+  const [tokens] = await db.execute<mysql.RowDataPacket[]>("SELECT email, display_name AS displayName, phone, password_hash AS passwordHash FROM biocare_review_customer_tokens WHERE token_hash = ? LIMIT 1", [hash]);
   if (!tokens.length) return null;
   const email = String(tokens[0].email);
   const name = String(tokens[0].displayName);
   const phone = String(tokens[0].phone || "");
-  await db.execute("INSERT INTO biocare_review_customers (id, email, display_name, phone, email_verified_at) VALUES (?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE display_name = VALUES(display_name), phone = VALUES(phone), email_verified_at = COALESCE(email_verified_at, NOW())", [randomUUID(), email, name, phone]);
+  await db.execute("INSERT INTO biocare_review_customers (id, email, display_name, phone, password_hash, email_verified_at) VALUES (?, ?, ?, ?, ?, NOW()) ON DUPLICATE KEY UPDATE display_name = VALUES(display_name), phone = VALUES(phone), password_hash = COALESCE(VALUES(password_hash), password_hash), email_verified_at = COALESCE(email_verified_at, NOW())", [randomUUID(), email, name, phone, tokens[0].passwordHash || null]);
   const [rows] = await db.execute<mysql.RowDataPacket[]>("SELECT id, email, display_name AS displayName, phone FROM biocare_review_customers WHERE email = ? AND email_verified_at IS NOT NULL LIMIT 1", [email]);
   if (!rows.length) return null;
   const customer: ReviewCustomer = { id: String(rows[0].id), email: String(rows[0].email), name: String(rows[0].displayName), phone: String(rows[0].phone || "") };
@@ -350,6 +423,13 @@ export async function updateReviewCustomerProfile(customerId: string, rawName: u
   }
   await getPool().execute("UPDATE biocare_review_customers SET display_name = ?, phone = ? WHERE id = ?", [name, phone, customerId]);
   return { name, phone };
+}
+
+export async function updateReviewCustomerPassword(customerId: string, rawPassword: unknown) {
+  await ensureReviewSchema();
+  const password = typeof rawPassword === "string" ? rawPassword : "";
+  if (password.length < 12 || password.length > 200) throw new ReviewApiError(400, "A jelszó legalább 12 karakter legyen.");
+  await getPool().execute("UPDATE biocare_review_customers SET password_hash = ? WHERE id = ?", [passwordHash(password), customerId]);
 }
 
 export async function deleteReviewCustomerSession(request: Request) {

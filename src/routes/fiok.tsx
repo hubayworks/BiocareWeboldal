@@ -22,6 +22,8 @@ function CustomerAccountPage() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmNewPassword, setConfirmNewPassword] = useState("");
   const [rating, setRating] = useState(0);
   const [review, setReview] = useState("");
   const [consent, setConsent] = useState(false);
@@ -91,6 +93,18 @@ function CustomerAccountPage() {
     finally { setBusy(false); }
   };
 
+  const updatePassword = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault(); setBusy(true); setError(""); setMessage("");
+    if (newPassword !== confirmNewPassword) { setError("A két jelszó nem egyezik."); setBusy(false); return; }
+    try {
+      const response = await fetch("/api/account", { method: "POST", headers: { "Content-Type": "application/json", Accept: "application/json" }, body: JSON.stringify({ action: "update_password", password: newPassword }) });
+      const data = await response.json().catch(() => ({})) as { error?: string; message?: string };
+      if (!response.ok) throw new Error(data.error || "A jelszó módosítása nem sikerült.");
+      setNewPassword(""); setConfirmNewPassword(""); setMessage(data.message || "A jelszavad frissült.");
+    } catch (reason) { setError(reason instanceof Error ? reason.message : "A jelszó módosítása nem sikerült."); }
+    finally { setBusy(false); }
+  };
+
   const submitReview = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault(); setBusy(true); setError(""); setMessage("");
     try {
@@ -139,6 +153,7 @@ function CustomerAccountPage() {
         {!customer ? (
           <section className="mt-8 rounded-3xl border border-primary/10 bg-background p-6 shadow-sm sm:p-8">
             <Mail className="text-primary" size={24} /><h2 className="mt-4 font-display text-2xl">Belépés vagy regisztráció</h2>
+            <p className="mt-3 flex flex-wrap gap-3 text-sm"><Link to="/belepes" className="font-semibold text-primary underline underline-offset-4">Belépés jelszóval</Link><Link to="/regisztracio" className="font-semibold text-primary underline underline-offset-4">Új fiók létrehozása</Link></p>
             <p className="mt-2 text-sm leading-6 text-muted-foreground">Írd be a neved és e-mail-címed. A postafiókodba küldött egyszer használatos linkkel tudod igazolni a címedet és megnyitni a fiókodat. A link 20 percig érvényes.</p>
             <form onSubmit={requestLink} className="mt-6 grid gap-4">
               <label className="grid gap-2 text-sm font-semibold">Neved<input required minLength={2} maxLength={80} autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} className="min-h-12 rounded-xl border border-primary/20 bg-background px-4 font-normal" /></label>
@@ -155,6 +170,15 @@ function CustomerAccountPage() {
                 <label className="grid gap-2 text-sm font-semibold">Név<input required minLength={2} maxLength={80} autoComplete="name" value={name} onChange={(event) => setName(event.target.value)} className="min-h-11 rounded-xl border border-primary/20 bg-background px-4 font-normal" /></label>
                 <label className="grid gap-2 text-sm font-semibold">Telefonszám<input required type="tel" minLength={7} maxLength={40} autoComplete="tel" value={phone} onChange={(event) => setPhone(event.target.value)} className="min-h-11 rounded-xl border border-primary/20 bg-background px-4 font-normal" /></label>
                 <button disabled={busy} className="min-h-11 w-fit rounded-full border border-primary/20 px-5 text-sm font-semibold text-primary disabled:opacity-50 sm:col-span-2">Profil mentése</button>
+              </form>
+            </section>
+            <section className="mt-8 rounded-3xl border border-primary/10 bg-background p-6 shadow-sm sm:p-8">
+              <h2 className="font-display text-2xl">Jelszó beállítása vagy módosítása</h2>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Legalább 12 karakteres jelszót válassz. Ha korábban e-mailes belépést használtál, ezzel állíthatsz be először jelszót.</p>
+              <form onSubmit={updatePassword} className="mt-5 grid gap-4 sm:grid-cols-2">
+                <label className="grid gap-2 text-sm font-semibold">Új jelszó<input required type="password" minLength={12} maxLength={200} autoComplete="new-password" value={newPassword} onChange={(event) => setNewPassword(event.target.value)} className="min-h-11 rounded-xl border border-primary/20 bg-background px-4 font-normal" /></label>
+                <label className="grid gap-2 text-sm font-semibold">Jelszó megerősítése<input required type="password" minLength={12} maxLength={200} autoComplete="new-password" value={confirmNewPassword} onChange={(event) => setConfirmNewPassword(event.target.value)} className="min-h-11 rounded-xl border border-primary/20 bg-background px-4 font-normal" /></label>
+                <button disabled={busy} className="min-h-11 w-fit rounded-full border border-primary/20 px-5 text-sm font-semibold text-primary disabled:opacity-50 sm:col-span-2">Jelszó mentése</button>
               </form>
             </section>
             <section className="mt-8 rounded-3xl border border-primary/10 bg-background p-6 shadow-sm sm:p-8">
