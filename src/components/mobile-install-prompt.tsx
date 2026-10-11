@@ -47,7 +47,7 @@ export function MobileInstallPrompt() {
   const dismiss = () => {
     setVisible(false);
     try {
-      localStorage.setItem(dismissedKey, String(Date.now() + 7 * 24 * 60 * 60 * 1000));
+      localStorage.setItem(dismissedKey, String(Date.now() + 3 * 24 * 60 * 60 * 1000));
     } catch {
       // Dismissal remains effective for the current render.
     }
@@ -86,15 +86,25 @@ export function MobileInstallPrompt() {
         {showInstructions && (
           <div className="mt-4 rounded-2xl border border-primary/10 bg-primary/[0.055] p-4 text-sm leading-6">
             {ios ? (
-              <p className="flex gap-2"><Share size={17} className="mt-1 shrink-0 text-primary" aria-hidden="true" /> A Safari megosztás menüjében válaszd a <strong>Főképernyőhöz adás</strong> lehetőséget.</p>
+              <div>
+                <p className="font-semibold text-foreground">Hozzáadás iPhone-on</p>
+                <ol className="mt-2 list-decimal space-y-1.5 pl-5 text-muted-foreground">
+                  <li>Nyisd meg ezt az oldalt a <strong>Safari</strong> böngészőben.</li>
+                  <li>Koppints a <strong>Megosztás</strong> ikonra — a négyzetből felfelé mutató nyílra. Ha nem látod, nyisd meg a további menüt.</li>
+                  <li>Görgess le, és válaszd a <strong>Hozzáadás a Főképernyőhöz</strong> lehetőséget.</li>
+                  <li>Kapcsold be a <strong>Megnyitás webappként</strong> opciót, majd koppints a <strong>Hozzáadás</strong> gombra.</li>
+                </ol>
+              </div>
             ) : (
-              <p className="flex gap-2"><Download size={17} className="mt-1 shrink-0 text-primary" aria-hidden="true" /> A böngésző menüjében válaszd az <strong>Alkalmazás telepítése</strong> vagy a <strong>Hozzáadás a kezdőképernyőhöz</strong> lehetőséget.</p>
+              <div>
+                <p className="flex gap-2"><Download size={17} className="mt-1 shrink-0 text-primary" aria-hidden="true" /> A böngésző menüjében válaszd az <strong>Alkalmazás telepítése</strong> vagy a <strong>Hozzáadás a kezdőképernyőhöz</strong> lehetőséget.</p>
+              </div>
             )}
           </div>
         )}
         <div className="mt-5 flex items-center gap-3">
           <button type="button" onClick={install} className="inline-flex min-h-12 flex-1 items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground shadow-md shadow-primary/15 transition hover:bg-primary/90">
-            {installEvent ? <><Download size={17} aria-hidden="true" /> Telepítés</> : <><Share size={17} aria-hidden="true" /> {ios ? "Megmutatom" : "Kezdőképernyőre"}</>}
+            {installEvent ? <><Download size={17} aria-hidden="true" /> Telepítés</> : <><Share size={17} aria-hidden="true" /> {ios ? "Lépések megmutatása" : "Telepítési súgó"}</>}
           </button>
           <button type="button" onClick={dismiss} className="inline-flex min-h-12 items-center justify-center rounded-full px-4 text-sm font-medium text-muted-foreground transition hover:bg-primary/10 hover:text-foreground">Később</button>
         </div>
