@@ -185,23 +185,27 @@ function Hero() {
         width={1536}
         height={2048}
         fetchPriority="high"
-        className="absolute inset-x-0 -top-[12%] h-[112%] w-full origin-top scale-x-[1.1] scale-y-[1.2] object-cover object-[center_30%] brightness-120"
+        className="absolute inset-0 h-full w-full object-cover object-[center_42%] brightness-110"
       />
       <div className="bg-hero-shade absolute inset-0" aria-hidden="true" />
       <div className="relative mx-auto flex min-h-[66svh] max-w-7xl items-center px-5 py-16 md:min-h-[68svh] md:px-8 md:py-20">
-        <div className="relative z-10 max-w-2xl -translate-y-12 md:-translate-y-20">
+        <div className="relative z-10 max-w-4xl">
           <h1 className="font-display text-5xl font-medium leading-[0.98] text-hero-foreground drop-shadow-md sm:text-6xl lg:text-7xl">
             Természetes bőrápolás.
             <br />
             <em className="font-normal text-accent">Egy kis idő önmagadra.</em>
           </h1>
-          <div className="mt-9 flex translate-x-5 translate-y-[calc(0.6875rem+9svh)] flex-wrap items-center gap-2 md:ml-[11.625rem] md:translate-y-[calc(1.6875rem+10.75svh)] md:gap-3 lg:ml-[12.625rem]">
-            <a href="#arlista" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#F4EBDD]/25 bg-[#E8D8B8]/55 px-4 py-2 text-xs font-semibold text-[#405039] backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#E8D8B8]/70 sm:gap-2 sm:px-5 sm:py-2 md:text-sm">
+          <div className="mt-8 flex max-w-4xl flex-wrap items-center gap-3 sm:gap-4">
+            <a href={site.phoneHref} className="inline-flex min-h-11 items-center gap-2 rounded-full border border-white/35 bg-black/20 px-4 py-2 text-sm font-semibold text-white shadow-sm backdrop-blur-sm transition-colors hover:bg-black/35">
+              <Phone size={17} aria-hidden="true" />
+              <span>{site.phone}</span>
+            </a>
+            <a href="#arlista" className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#F4EBDD]/70 bg-[#F4EBDD]/90 px-4 py-2 text-xs font-semibold text-[#35432E] shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#FFFDF7] sm:px-5 md:text-sm">
               Árlista <ArrowDownRight size={15} aria-hidden="true" />
             </a>
             <a
               href="#szolgaltatasok"
-              className="inline-flex min-h-11 items-center gap-2 rounded-md border border-hero-foreground/45 px-3 py-2 text-xs font-semibold text-hero-foreground transition-colors hover:bg-hero-foreground/10 sm:px-3 sm:py-2 md:text-sm"
+              className="inline-flex min-h-11 items-center gap-2 rounded-full border border-[#71845E] bg-[#71845E]/95 px-4 py-2 text-xs font-semibold text-white shadow-sm backdrop-blur-sm transition-all hover:-translate-y-0.5 hover:bg-[#62764F] sm:px-5 md:text-sm"
             >
               Szolgáltatások <ArrowDownRight size={17} aria-hidden="true" />
             </a>
