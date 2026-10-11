@@ -30,6 +30,25 @@ export const ownerIntroduction = {
   cta: "Időpontot egyeztetek",
 };
 
+export type ReviewSource = "website" | "google" | "facebook" | "other";
+
+export type PublishedReview = {
+  id: string;
+  author: string;
+  rating: number;
+  text: string;
+  date: string;
+  source: ReviewSource;
+};
+
+// Provider registry lets us add more review sources without changing the review UI.
+export const reviewSources: { id: ReviewSource; label: string; status: "active" | "planned" }[] = [
+  { id: "website", label: "BioCare weboldal", status: "active" },
+  { id: "google", label: "Google Reviews", status: "planned" },
+  { id: "facebook", label: "Facebook Reviews", status: "planned" },
+  { id: "other", label: "Egyéb értékelési felület", status: "planned" },
+];
+
 export const serviceGroups = [
   {
     number: "01",

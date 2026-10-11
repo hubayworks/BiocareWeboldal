@@ -13,21 +13,25 @@ function ReviewFormPage() {
   const [name, setName] = useState("");
   const [review, setReview] = useState("");
   const [permission, setPermission] = useState(false);
+  const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState("");
 
-  const sendReview = (event: FormEvent<HTMLFormElement>) => {
+  const sendReview = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const subject = "BioCare vendégvélemény";
-    const body = [
-      "Szia Dominika!",
-      "",
-      `Értékelés: ${rating}/5`,
-      `Név: ${name.trim()}`,
-      "",
-      review.trim(),
-      "",
-      `Hozzájárulás a név és a vélemény weboldalon való megjelenítéséhez: ${permission ? "igen" : "nem"}`,
-    ].join("\n");
-    window.location.href = `mailto:${site.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    setError("");
+    const website = String(new FormData(event.currentTarget).get("website") || "");
+    try {
+      const response = await fetch("/api/reviews", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({ name, rating, review, consent: permission, website }),
+      });
+      const result = await response.json().catch(() => ({})) as { message?: string };
+      if (!response.ok) throw new Error(result.message || "A beküldés most nem sikerült. Próbáld újra később.");
+      setSubmitted(true);
+    } catch (submissionError) {
+      setError(submissionError instanceof Error ? submissionError.message : "A beküldés most nem sikerült. Próbáld újra később.");
+    }
   };
 
   return (
@@ -37,8 +41,16 @@ function ReviewFormPage() {
         <div className="mt-8 rounded-[1.75rem] border border-primary/10 bg-white/80 p-5 shadow-lg shadow-primary/5 sm:p-8">
           <p className="eyebrow">Vendégvélemény</p>
           <h1 className="mt-2 font-display text-4xl font-medium leading-tight sm:text-5xl">Meséld el, milyen volt.</h1>
-          <p className="mt-3 text-sm leading-6 text-muted-foreground">A visszajelzésed segít másoknak is megismerni a BioCare-t. Nyilvánosan csak külön engedéllyel jelenik meg.</p>
+          <p className="mt-3 text-sm leading-6 text-muted-foreground">A visszajelzésed segít másoknak is megismerni a BioCare-t. Nyilvánosan csak Dominika jóváhagyása után jelenik meg.</p>
+          {submitted ? (
+            <div role="status" className="mt-7 rounded-2xl border border-primary/15 bg-primary/[0.055] p-5 sm:p-7">
+              <Heart size={24} className="text-primary" aria-hidden="true" />
+              <p className="mt-3 font-display text-2xl font-medium">Köszönjük a véleményed!</p>
+              <p className="mt-2 text-sm leading-6 text-muted-foreground">Elküldtük Dominikának jóváhagyásra. Közzététel után jelenik meg a Vélemények oldalon.</p>
+            </div>
+          ) : (
           <form onSubmit={sendReview} className="mt-7 space-y-5">
+            <label className="absolute -left-[10000px] h-px w-px overflow-hidden" aria-hidden="true">Weboldal<input name="website" tabIndex={-1} autoComplete="off" /></label>
             <fieldset>
               <legend className="text-sm font-semibold">Hány csillagot adnál?</legend>
               <div className="mt-2 flex gap-1">
@@ -63,8 +75,10 @@ function ReviewFormPage() {
               <span>Hozzájárulok, hogy a megadott nevem és véleményem jóváhagyás után megjelenjen a BioCare weboldalán.</span>
             </label>
             <button type="submit" disabled={!rating} className="inline-flex min-h-12 w-full items-center justify-center gap-2 rounded-full bg-primary px-5 text-sm font-semibold text-primary-foreground transition hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-45">Vélemény elküldése <ArrowUpRight size={16} aria-hidden="true" /></button>
-            <p className="text-xs leading-5 text-muted-foreground">A gomb a saját levelezőalkalmazásodban nyit egy előre kitöltött üzenetet; csak az e-mail tényleges elküldése után érkezik meg.</p>
+            {error && <p role="alert" className="text-sm leading-6 text-destructive">{error}</p>}
+            <p className="text-xs leading-5 text-muted-foreground">A vélemény adatbázisba kerül, és csak Dominika jóváhagyása után válik nyilvánossá.</p>
           </form>
+          )}
         </div>
         <p className="mt-6 flex items-center justify-center gap-2 text-xs text-muted-foreground"><Heart size={14} className="text-primary" aria-hidden="true" /> Köszönjük, hogy megosztod a tapasztalatod.</p>
       </div>

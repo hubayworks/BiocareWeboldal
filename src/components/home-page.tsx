@@ -32,6 +32,7 @@ import passBackPreview from "@/assets/biocare-pass-back.svg";
 import ownerPhoto from "@/assets/bioker-portrait.jpg";
 import hubayWorksLogo from "@/assets/hubay-works-logo.png";
 import priceListPdf from "@/assets/kozmetikai-arlista-uj-arak.pdf";
+import { ReviewsSection } from "@/components/reviews-section";
 import {
   featuredPrices,
   gifts,
@@ -775,7 +776,7 @@ export function HomePage() {
   return (
     <div className="home-app-shell min-h-screen overflow-x-hidden bg-background text-foreground">
       <SiteHeader hideDuringPortrait={compactMenuEnabled} />
-      <main><Hero /><NewOfferingsSection /><OwnerIntroductionSection compactMenuEnabled={compactMenuEnabled} /><ServiceSection /><PriceList /><GiftsSection /><ContactSection /></main>
+      <main><Hero /><NewOfferingsSection /><OwnerIntroductionSection compactMenuEnabled={compactMenuEnabled} /><ReviewsSection /><ServiceSection /><PriceList /><GiftsSection /><ContactSection /></main>
       <footer className="bg-foreground px-5 py-7 text-background md:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 text-xs md:grid-cols-[1fr_auto_1fr] md:items-center">
           <p className="text-center md:text-left">Minden jog fenntartva © 2026 BioCare Kozmetika · {site.practitioner}</p>
