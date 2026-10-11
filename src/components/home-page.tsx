@@ -251,10 +251,20 @@ function Hero() {
     const video = videoRef.current;
     if (!hero || !video) return;
 
+    const mobileQuery = window.matchMedia("(max-width: 767px)");
+    const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+    let isMobile = mobileQuery.matches;
     let targetProgress = 0;
     let displayedProgress = 0;
     let animationFrame = 0;
     let lastSeekTime = 0;
+
+    const updateTarget = () => {
+      if (isMobile || reducedMotionQuery.matches) return;
+      const heroTop = hero.getBoundingClientRect().top + window.scrollY;
+      targetProgress = Math.min(1, Math.max(0, (window.scrollY - heroTop) / Math.max(hero.offsetHeight, 1)));
+      if (!animationFrame) animationFrame = window.requestAnimationFrame(animateVideo);
+    };
 
     const animateVideo = (timestamp: number) => {
       animationFrame = 0;
@@ -268,28 +278,66 @@ function Hero() {
       if (displayedProgress !== targetProgress) animationFrame = window.requestAnimationFrame(animateVideo);
     };
 
-    const updateTarget = () => {
-      const heroTop = hero.getBoundingClientRect().top + window.scrollY;
-      targetProgress = Math.min(1, Math.max(0, (window.scrollY - heroTop) / Math.max(hero.offsetHeight, 1)));
-      if (!animationFrame) animationFrame = window.requestAnimationFrame(animateVideo);
+    const startMobilePlayback = () => {
+      if (!isMobile || reducedMotionQuery.matches) {
+        video.pause();
+        return;
+      }
+      video.loop = true;
+      void video.play().catch(() => {});
     };
 
     const onMetadata = () => {
+      if (isMobile) {
+        startMobilePlayback();
+        return;
+      }
       displayedProgress = video.currentTime / video.duration;
       updateTarget();
     };
+
+    const syncPlaybackMode = () => {
+      isMobile = mobileQuery.matches;
+      if (isMobile) {
+        startMobilePlayback();
+      } else {
+        video.pause();
+        video.loop = false;
+        updateTarget();
+      }
+    };
+
+    const onMotionPreferenceChange = () => {
+      if (reducedMotionQuery.matches) {
+        video.pause();
+        if (animationFrame) window.cancelAnimationFrame(animationFrame);
+        animationFrame = 0;
+      } else if (isMobile) {
+        startMobilePlayback();
+      } else {
+        updateTarget();
+      }
+    };
+
     video.addEventListener("loadedmetadata", onMetadata);
     window.addEventListener("scroll", updateTarget, { passive: true });
     window.addEventListener("resize", updateTarget, { passive: true });
-    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) onMetadata();
+    mobileQuery.addEventListener("change", syncPlaybackMode);
+    reducedMotionQuery.addEventListener("change", onMotionPreferenceChange);
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
+      if (isMobile) startMobilePlayback();
+      else onMetadata();
+    }
+
     return () => {
       video.removeEventListener("loadedmetadata", onMetadata);
       window.removeEventListener("scroll", updateTarget);
       window.removeEventListener("resize", updateTarget);
+      mobileQuery.removeEventListener("change", syncPlaybackMode);
+      reducedMotionQuery.removeEventListener("change", onMotionPreferenceChange);
       if (animationFrame) window.cancelAnimationFrame(animationFrame);
     };
   }, []);
-
   return (
     <section
       ref={heroRef}
