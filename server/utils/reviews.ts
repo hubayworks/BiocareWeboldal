@@ -1,6 +1,3 @@
-Warning: truncated output (original token count: 6097)
-Total output lines: 404
-
 import { createHash, randomBytes, randomUUID } from "node:crypto";
 import mysql from "mysql2/promise";
 import nodemailer from "nodemailer";
@@ -248,7 +245,14 @@ export async function sendReviewAdminHandoffEmail(request: Request) {
   if (sentEmail === email) throw new ReviewApiError(409, "Az átadási e-mailt erre a címre már elküldtük.");
   const [claim] = await db.execute<mysql.ResultSetHeader>(
     "UPDATE biocare_review_admin_settings SET welcome_sent_email = 'sending' WHERE id = 1 AND admin_email = ? AND (welcome_sent_email IS NULL OR (welcome_sent_email <> ? AND welcome_sent_email <> 'sending'))",
-    [email, ema…97 tokens truncated…t accessUrl = `${baseUrl}/reviews-admin?token=${encodeURIComponent(token)}`;
+    [email, email],
+  );
+  if (claim.affectedRows !== 1) throw new ReviewApiError(409, "Az átadási e-mail már folyamatban van.");
+  try {
+    const token = await createAdminLoginToken();
+    const baseUrl = (process.env.APP_BASE_URL || new URL(request.url).origin).replace(/\/$/, "");
+    const siteUrl = (process.env.PUBLIC_SITE_URL || "https://biocarekozmetikapecs.hu").replace(/\/$/, "");
+    const accessUrl = `${baseUrl}/reviews-admin?token=${encodeURIComponent(token)}`;
     const links = [
       ["Jóváhagyott vélemények", `${baseUrl}/reviews-admin?status=published`],
       ["Archivált vélemények", `${baseUrl}/reviews-admin?status=archived`],
