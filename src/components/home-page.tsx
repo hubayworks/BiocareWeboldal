@@ -246,6 +246,7 @@ export function MobileAppNavigation() {
             <Link to="/velemeny-irasa" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Vélemény írása</Link>
             <Link to="/velemenyek" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Vélemények</Link>
             <Link to="/galeria" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Galéria</Link>
+            <Link to="/kerdoivek" onClick={() => setMenuOpen(false)} className="flex min-h-12 items-center rounded-2xl border border-primary/10 bg-white/75 px-3 text-sm font-semibold text-foreground">Kérdőívek</Link>
           </nav>
         </div>
       )}

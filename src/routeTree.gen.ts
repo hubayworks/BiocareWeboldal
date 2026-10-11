@@ -14,6 +14,7 @@ import { Route as AdatvedelemRouteImport } from './routes/adatvedelem'
 import { Route as GaleriaRouteImport } from './routes/galeria'
 import { Route as HubayWorksRouteImport } from './routes/hubay-works'
 import { Route as ImpresszumRouteImport } from './routes/impresszum'
+import { Route as KerdoivekRouteImport } from './routes/kerdoivek'
 import { Route as ReviewJovahagyasRouteImport } from './routes/review-jovahagyas'
 import { Route as VelemenyIrasaRouteImport } from './routes/velemeny-irasa'
 import { Route as VelemenyekRouteImport } from './routes/velemenyek'
@@ -43,6 +44,11 @@ const HubayWorksRoute = HubayWorksRouteImport.update({
 const ImpresszumRoute = ImpresszumRouteImport.update({
   id: '/impresszum',
   path: '/impresszum',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const KerdoivekRoute = KerdoivekRouteImport.update({
+  id: '/kerdoivek',
+  path: '/kerdoivek',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ReviewJovahagyasRoute = ReviewJovahagyasRouteImport.update({
@@ -77,6 +83,7 @@ export interface FileRoutesByFullPath {
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
+  '/kerdoivek': typeof KerdoivekRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
@@ -89,6 +96,7 @@ export interface FileRoutesByTo {
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
+  '/kerdoivek': typeof KerdoivekRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
@@ -102,6 +110,7 @@ export interface FileRoutesById {
   '/galeria': typeof GaleriaRoute
   '/hubay-works': typeof HubayWorksRoute
   '/impresszum': typeof ImpresszumRoute
+  '/kerdoivek': typeof KerdoivekRoute
   '/review-jovahagyas': typeof ReviewJovahagyasRoute
   '/velemeny-irasa': typeof VelemenyIrasaRoute
   '/velemenyek': typeof VelemenyekRoute
@@ -116,6 +125,7 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
+    | '/kerdoivek'
     | '/review-jovahagyas'
     | '/velemeny-irasa'
     | '/velemenyek'
@@ -128,6 +138,7 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
+    | '/kerdoivek'
     | '/review-jovahagyas'
     | '/velemeny-irasa'
     | '/velemenyek'
@@ -140,6 +151,7 @@ export interface FileRouteTypes {
     | '/galeria'
     | '/hubay-works'
     | '/impresszum'
+    | '/kerdoivek'
     | '/review-jovahagyas'
     | '/velemeny-irasa'
     | '/velemenyek'
@@ -153,6 +165,7 @@ export interface RootRouteChildren {
   GaleriaRoute: typeof GaleriaRoute
   HubayWorksRoute: typeof HubayWorksRoute
   ImpresszumRoute: typeof ImpresszumRoute
+  KerdoivekRoute: typeof KerdoivekRoute
   ReviewJovahagyasRoute: typeof ReviewJovahagyasRoute
   VelemenyIrasaRoute: typeof VelemenyIrasaRoute
   VelemenyekRoute: typeof VelemenyekRoute
@@ -194,6 +207,13 @@ declare module '@tanstack/react-router' {
       path: '/impresszum'
       fullPath: '/impresszum'
       preLoaderRoute: typeof ImpresszumRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/kerdoivek': {
+      id: '/kerdoivek'
+      path: '/kerdoivek'
+      fullPath: '/kerdoivek'
+      preLoaderRoute: typeof KerdoivekRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/review-jovahagyas': {
@@ -252,6 +272,7 @@ const rootRouteChildren: RootRouteChildren = {
   GaleriaRoute: GaleriaRoute,
   HubayWorksRoute: HubayWorksRoute,
   ImpresszumRoute: ImpresszumRoute,
+  KerdoivekRoute: KerdoivekRoute,
   ReviewJovahagyasRoute: ReviewJovahagyasRoute,
   VelemenyIrasaRoute: VelemenyIrasaRoute,
   VelemenyekRoute: VelemenyekRoute,
