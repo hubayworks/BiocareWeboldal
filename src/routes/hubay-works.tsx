@@ -8,7 +8,7 @@ export const Route = createFileRoute("/hubay-works")({
       { title: "A készítőtől | Hubay Works" },
       {
         name: "description",
-        content: "Így készült a BioCare Kozmetika weboldala: hangalapú szerkesztéssel és AI közreműködésével.",
+        content: "Így készült a BioCare Kozmetika weboldala: hangalapú szerkesztéssel, amelyben az AI sokat segített.",
       },
     ],
   }),
@@ -36,12 +36,12 @@ function HubayWorksPage() {
 
         <h1 className="mt-8 font-display text-4xl font-medium leading-tight sm:text-5xl">Hogyan készült <em>ez a weboldal?</em></h1>
         <p className="mt-6 text-base leading-8 text-muted-foreground">
-          A BioCare Kozmetika weboldala hangalapú szerkesztéssel és mesterséges intelligencia közreműködésével készült. Az elképzelések beszélgetésben formálódtak: a készítő és az AI együtt alakította ki az oldal szövegét, megjelenését és működését.
+          A BioCare Kozmetika weboldala hangalapú szerkesztéssel készült. Az elképzelések beszélgetésben formálódtak, az AI pedig sokat segített az oldal szövegének, megjelenésének és működésének kialakításában.
         </p>
 
         <div className="mt-8 flex flex-wrap gap-3" aria-label="A weboldal készítésének módja">
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-4 py-2 text-xs font-medium text-primary"><AudioLines size={15} aria-hidden="true" /> Hangalapú szerkesztés</span>
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-4 py-2 text-xs font-medium text-primary"><Sparkles size={15} aria-hidden="true" /> AI közreműködés</span>
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-4 py-2 text-xs font-medium text-primary"><Sparkles size={15} aria-hidden="true" /> AI sokat segített</span>
         </div>
 
         <div className="mt-10 border-t border-primary/10 pt-6 text-sm text-muted-foreground">
