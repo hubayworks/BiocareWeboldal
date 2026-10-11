@@ -23,7 +23,8 @@ import {
   X,
 } from "lucide-react";
 import logo from "@/assets/biocare-logo-cropped.png";
-import salonPhoto from "@/assets/biocare-reference-salon.jpg";
+import heroVideo from "@/assets/biocare-hero-muted.mp4";
+import heroPoster from "@/assets/biocare-hero-poster.jpg";
 import productPhoto from "@/assets/biocare-reference-products.jpg";
 import giftCardPreview from "@/assets/biocare-gift-card-preview.jpg";
 import giftCardBackPreview from "@/assets/biocare-gift-card-back.svg";
@@ -272,17 +273,68 @@ export function MobileAppNavigation() {
 }
 
 function Hero() {
+  const heroRef = useRef<HTMLElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  useEffect(() => {
+    const hero = heroRef.current;
+    const video = videoRef.current;
+    if (!hero || !video) return;
+
+    let targetProgress = 0;
+    let displayedProgress = 0;
+    let animationFrame = 0;
+    let lastSeekTime = 0;
+
+    const animateVideo = (timestamp: number) => {
+      animationFrame = 0;
+      if (!video.duration || !Number.isFinite(video.duration)) return;
+      displayedProgress += (targetProgress - displayedProgress) * 0.2;
+      if (Math.abs(targetProgress - displayedProgress) < 0.001) displayedProgress = targetProgress;
+      if (timestamp - lastSeekTime > 1000 / 30 || displayedProgress === targetProgress) {
+        video.currentTime = Math.min(video.duration - 0.001, displayedProgress * video.duration);
+        lastSeekTime = timestamp;
+      }
+      if (displayedProgress !== targetProgress) animationFrame = window.requestAnimationFrame(animateVideo);
+    };
+
+    const updateTarget = () => {
+      const heroTop = hero.getBoundingClientRect().top + window.scrollY;
+      targetProgress = Math.min(1, Math.max(0, (window.scrollY - heroTop) / Math.max(hero.offsetHeight, 1)));
+      if (!animationFrame) animationFrame = window.requestAnimationFrame(animateVideo);
+    };
+
+    const onMetadata = () => {
+      displayedProgress = video.currentTime / video.duration;
+      updateTarget();
+    };
+    video.addEventListener("loadedmetadata", onMetadata);
+    window.addEventListener("scroll", updateTarget, { passive: true });
+    window.addEventListener("resize", updateTarget, { passive: true });
+    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) onMetadata();
+    return () => {
+      video.removeEventListener("loadedmetadata", onMetadata);
+      window.removeEventListener("scroll", updateTarget);
+      window.removeEventListener("resize", updateTarget);
+      if (animationFrame) window.cancelAnimationFrame(animationFrame);
+    };
+  }, []);
+
   return (
     <section
+      ref={heroRef}
       id="top"
       className="relative isolate min-h-[72svh] scroll-mt-36 overflow-hidden bg-foreground md:min-h-[68svh]"
     >
-      <img
-        src={salonPhoto}
-        alt="A BioCare Kozmetika bejárata a pécsi Jókai utcában"
-        width={1536}
-        height={2048}
-        fetchPriority="high"
+      <video
+        ref={videoRef}
+        src={heroVideo}
+        poster={heroPoster}
+        muted
+        playsInline
+        preload="auto"
+        aria-hidden="true"
+        tabIndex={-1}
         className="absolute inset-0 h-full w-full object-cover object-[center_46%] brightness-110"
       />
       <div className="bg-hero-shade absolute inset-0" aria-hidden="true" />
