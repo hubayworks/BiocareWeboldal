@@ -348,7 +348,7 @@ function ServiceSection() {
   );
 }
 
-function OwnerIntroductionSection({ compactMenuEnabled }: { compactMenuEnabled: boolean }) {
+function OwnerIntroductionSection() {
   return (
     <section id="bemutatkozas" className="scroll-mt-36 bg-secondary/45 px-5 py-20 md:px-8 md:py-28">
       <div className="mx-auto grid max-w-7xl items-center gap-10 md:grid-cols-2 md:gap-16">
@@ -362,15 +362,31 @@ function OwnerIntroductionSection({ compactMenuEnabled }: { compactMenuEnabled: 
               loading="lazy"
               className="aspect-[4/5] w-full object-cover"
             />
-            <div className={`pointer-events-none absolute inset-x-4 bottom-4 translate-y-3 opacity-0 transition-all duration-500 ease-out ${compactMenuEnabled ? "group-hover/photo:pointer-events-auto group-hover/photo:translate-y-0 group-hover/photo:opacity-100 group-focus-within/photo:pointer-events-auto group-focus-within/photo:translate-y-0 group-focus-within/photo:opacity-100" : ""}`}>
-              <div className="rounded-2xl border border-white/65 bg-white/85 p-4 shadow-xl shadow-foreground/15 backdrop-blur-md sm:p-5">
-                <img src={logo} alt="BioCare Kozmetika" className="h-12 w-36 object-contain" />
-                <nav className="mt-3 flex flex-wrap gap-2" aria-label="Gyors navigáció">
-                  <a href="#szolgaltatasok" className="inline-flex min-h-10 items-center rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90">Szolgáltatások</a>
-                  <a href="#arlista" className="inline-flex min-h-10 items-center rounded-full border border-primary/25 bg-background/80 px-4 py-2 text-sm font-semibold text-primary transition-colors hover:bg-background">Árlista</a>
-                </nav>
+            <figure className="absolute bottom-4 right-4 w-[clamp(9rem,37%,13rem)] rotate-[2deg] rounded-[2rem] border border-white/80 bg-[#24392f] p-[5px] shadow-2xl shadow-foreground/30 transition-transform duration-500 hover:rotate-0 hover:scale-[1.03] sm:bottom-6 sm:right-6" aria-label="A BioCare webalkalmazás előnézete iPhone-on">
+              <div className="overflow-hidden rounded-[1.7rem] bg-[#f8f7f1]">
+                <div className="flex h-6 items-center justify-center bg-[#f8f7f1]">
+                  <span className="h-1 w-10 rounded-full bg-[#26372e]/80" aria-hidden="true" />
+                </div>
+                <div className="px-3 pb-3 pt-1 sm:px-4 sm:pb-4">
+                  <div className="flex items-center gap-2">
+                    <img src={logo} alt="" className="h-9 w-9 rounded-xl object-contain" />
+                    <div className="min-w-0">
+                      <p className="truncate text-[11px] font-semibold text-[#27352d] sm:text-xs">BioCare Kozmetika</p>
+                      <p className="text-[9px] text-[#718073]">Webapp · Pécs</p>
+                    </div>
+                  </div>
+                  <div className="mt-3 rounded-xl bg-[#e8eee3] px-2.5 py-3 sm:px-3">
+                    <p className="font-display text-xs leading-tight text-[#354a3a] sm:text-sm">Egy kis idő önmagadra.</p>
+                    <p className="mt-1 text-[9px] text-[#68786b]">Természetes bőrápolás</p>
+                  </div>
+                  <div className="mt-2 grid grid-cols-2 gap-1.5">
+                    <a href="#szolgaltatasok" className="flex min-h-8 items-center justify-center rounded-full bg-primary px-1 text-center text-[8px] font-semibold text-primary-foreground sm:text-[9px]">Szolgáltatások</a>
+                    <a href="#arlista" className="flex min-h-8 items-center justify-center rounded-full border border-primary/25 bg-white px-1 text-center text-[8px] font-semibold text-primary sm:text-[9px]">Árlista</a>
+                  </div>
+                </div>
               </div>
-            </div>
+              <figcaption className="px-1 pb-1 pt-1.5 text-center text-[8px] font-medium tracking-wide text-white/85 sm:text-[9px]">Kezdőképernyőre telepíthető webapp</figcaption>
+            </figure>
           </div>
         </ScrollReveal>
         <ScrollReveal className="max-w-xl">
@@ -777,7 +793,7 @@ export function HomePage() {
   return (
     <div className="home-app-shell min-h-screen overflow-x-hidden bg-background text-foreground">
       <SiteHeader hideDuringPortrait={compactMenuEnabled} />
-      <main><Hero /><NewOfferingsSection /><OwnerIntroductionSection compactMenuEnabled={compactMenuEnabled} /><ReviewsSection /><ServiceSection /><PriceList /><GiftsSection /><ContactSection /></main>
+      <main><Hero /><NewOfferingsSection /><OwnerIntroductionSection /><ReviewsSection /><ServiceSection /><PriceList /><GiftsSection /><ContactSection /></main>
       <footer className="bg-foreground px-5 py-7 text-background md:px-8">
         <div className="mx-auto grid max-w-7xl gap-4 text-xs md:grid-cols-[1fr_auto_1fr] md:items-center">
           <p className="text-center md:text-left">Minden jog fenntartva © 2026 BioCare Kozmetika · {site.practitioner}</p>
