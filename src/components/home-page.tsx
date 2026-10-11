@@ -14,7 +14,6 @@ import {
   Instagram,
   Mail,
   MapPin,
-  Menu,
   Music2,
   Phone,
   PanelsTopLeft,
@@ -151,14 +150,12 @@ function NewOfferingsSection() {
 }
 
 function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-
   return (
     <>
     <aside aria-label="Aktuális ajánlat" className="mobile-promo fixed inset-x-0 top-0 z-50 flex h-8 items-center justify-center bg-primary px-4 text-center text-xs font-semibold tracking-wide text-primary-foreground sm:text-sm">
       Új vendégeinknek 15% kedvezmény
     </aside>
-    <header className={`mobile-site-header fixed inset-x-0 top-10 z-40 px-4 transition-[opacity,transform] duration-500 ease-out sm:px-5 md:px-8 ${hideDuringPortrait ? "pointer-events-none -translate-y-8 opacity-0" : "translate-y-0 opacity-100"}`} inert={hideDuringPortrait}>
+    <header className={`mobile-site-header fixed inset-x-0 top-10 z-40 hidden px-4 transition-[opacity,transform] duration-500 ease-out sm:px-5 md:block md:px-8 ${hideDuringPortrait ? "pointer-events-none -translate-y-8 opacity-0" : "translate-y-0 opacity-100"}`} inert={hideDuringPortrait}>
       <div className="nav-gradient-glass mx-auto flex h-16 max-w-7xl items-center justify-between gap-3 rounded-2xl px-4 text-foreground shadow-lg shadow-foreground/10 backdrop-blur-md md:h-[72px] md:rounded-full md:px-7">
         <a href="/#top" aria-label="BioCare Kozmetika – főoldal" className="shrink-0">
           <img src={logo} alt="BioCare Kozmetika" className="h-12 w-36 object-contain md:h-14 md:w-44" />
@@ -169,27 +166,7 @@ function SiteHeader({ hideDuringPortrait }: { hideDuringPortrait: boolean }) {
         <BookingLink className="hidden min-h-11 items-center gap-2 rounded-full bg-gradient-to-r from-[#B7C99A] via-[#A8B98A] to-[#93A978] px-4 py-2 text-xs font-semibold text-[#26351C] transition-colors hover:brightness-105 md:inline-flex md:text-sm">
           Időpontot egyeztetek <ArrowUpRight size={15} aria-hidden="true" />
         </BookingLink>
-        <button
-          type="button"
-          aria-label={menuOpen ? "Menü bezárása" : "Menü megnyitása"}
-          aria-expanded={menuOpen}
-          aria-controls="mobile-navigation"
-          onClick={() => setMenuOpen((open) => !open)}
-          className="inline-flex size-11 items-center justify-center rounded-full border border-primary/25 text-primary md:hidden"
-        >
-          {menuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
       </div>
-      {menuOpen && (
-        <nav id="mobile-navigation" className="mt-2 rounded-2xl border border-white/70 bg-white/95 px-5 py-4 text-primary shadow-lg backdrop-blur-md md:hidden" aria-label="Mobil navigáció">
-          <div className="mx-auto flex max-w-7xl flex-col items-stretch gap-1">
-            {navigation.map((item) => <a key={item.href} href={item.href} onClick={() => setMenuOpen(false)} className="rounded px-3 py-3 text-sm font-medium hover:bg-secondary">{item.label}</a>)}
-            <BookingLink className="mt-2 inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-[#A8B98A] px-4 py-2 text-sm font-semibold text-[#26351C] hover:bg-[#9EAF80]">
-              Időpontot egyeztetek <ArrowUpRight size={16} aria-hidden="true" />
-            </BookingLink>
-          </div>
-        </nav>
-      )}
     </header>
     </>
   );

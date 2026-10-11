@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { ArrowUpRight, Heart, MessageCircle, Star } from "lucide-react";
-import { reviewSources, type PublishedReview, type ReviewSource } from "@/lib/site-data";
+import { type PublishedReview, type ReviewSource } from "@/lib/site-data";
 
 const sourceLabels: Record<ReviewSource, string> = {
   website: "BioCare weboldal",
@@ -74,13 +74,6 @@ export function ReviewsSection({ standalone = false }: { standalone?: boolean })
           </a>
         </div>
 
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-2" aria-label="Tervezett értékelési források">
-          {reviewSources.filter((source) => source.status === "planned").map((source) => (
-            <span key={source.id} className="inline-flex min-h-9 items-center gap-1.5 rounded-full border border-primary/10 bg-background/75 px-3 text-xs text-muted-foreground">
-              <span className="size-1.5 rounded-full bg-primary/45" aria-hidden="true" />{source.label} · később hozzáadható
-            </span>
-          ))}
-        </div>
         <div className="mt-5 text-center">
           <a href="/velemenyek" className="inline-flex min-h-10 items-center gap-1.5 text-sm font-semibold text-primary underline decoration-primary/35 underline-offset-4 hover:decoration-primary">
             Minden vélemény <ArrowUpRight size={15} aria-hidden="true" />
