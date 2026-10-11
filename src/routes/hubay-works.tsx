@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowLeft, AudioLines, Sparkles } from "lucide-react";
+import { ArrowLeft, AudioLines, Globe2, Mail, Phone, Sparkles } from "lucide-react";
 import hubayWorksLogo from "@/assets/hubay-works-logo.png";
 
 export const Route = createFileRoute("/hubay-works")({
@@ -26,10 +26,10 @@ function HubayWorksPage() {
           <ArrowLeft size={15} aria-hidden="true" /> Vissza a BioCare oldalára
         </Link>
 
-        <div className="mt-11 flex items-center gap-5">
-          <img src={hubayWorksLogo} alt="Hubay Works" className="size-[4.5rem] shrink-0 rounded-2xl border border-primary/10 bg-white p-2 object-contain" />
+        <div className="mt-11 flex flex-col items-start gap-5 sm:flex-row sm:items-center">
+          <img src={hubayWorksLogo} alt="Hubay Works" className="size-32 shrink-0 rounded-3xl border border-primary/10 bg-white p-3 object-contain shadow-sm sm:size-36" />
           <div>
-            <p className="eyebrow">Hubay Works</p>
+            <p className="font-display text-3xl font-medium text-foreground">Hubay Works</p>
             <p className="mt-1 text-sm text-muted-foreground">Egy szó a készítőtől</p>
           </div>
         </div>
@@ -44,7 +44,13 @@ function HubayWorksPage() {
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/[0.06] px-4 py-2 text-xs font-medium text-primary"><Sparkles size={15} aria-hidden="true" /> AI sokat segített</span>
         </div>
 
-        <div className="mt-10 border-t border-primary/10 pt-6 text-sm text-muted-foreground">
+        <address className="mt-9 space-y-3 border-t border-primary/10 pt-6 text-sm not-italic">
+          <a href="https://hubayworks.eu" target="_blank" rel="noreferrer" className="flex w-fit items-center gap-3 text-muted-foreground transition-colors hover:text-primary"><Globe2 size={17} aria-hidden="true" /> hubayworks.eu</a>
+          <a href="tel:+36302509693" className="flex w-fit items-center gap-3 text-muted-foreground transition-colors hover:text-primary"><Phone size={17} aria-hidden="true" /> +36 30 250 96 93</a>
+          <a href="mailto:info@hubayworks.eu" className="flex w-fit items-center gap-3 text-muted-foreground transition-colors hover:text-primary"><Mail size={17} aria-hidden="true" /> info@hubayworks.eu</a>
+        </address>
+
+        <div className="mt-7 text-sm text-muted-foreground">
           Készült a <span className="font-semibold text-foreground">Hubay Works</span> közreműködésével.
         </div>
       </article>
