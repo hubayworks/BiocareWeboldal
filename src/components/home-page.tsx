@@ -250,108 +250,31 @@ export function MobileAppNavigation() {
 }
 
 function Hero() {
-  const heroRef = useRef<HTMLElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   useEffect(() => {
-    const hero = heroRef.current;
     const video = videoRef.current;
-    if (!hero || !video) return;
+    if (!video) return;
 
-    const mobileQuery = window.matchMedia("(max-width: 767px)");
     const reducedMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
-    let isMobile = mobileQuery.matches;
-    let targetProgress = 0;
-    let displayedProgress = 0;
-    let animationFrame = 0;
-    let lastSeekTime = 0;
 
-    const updateTarget = () => {
-      if (isMobile || reducedMotionQuery.matches) return;
-      const heroTop = hero.getBoundingClientRect().top + window.scrollY;
-      targetProgress = Math.min(1, Math.max(0, (window.scrollY - heroTop) / Math.max(hero.offsetHeight, 1)));
-      if (!animationFrame) animationFrame = window.requestAnimationFrame(animateVideo);
-    };
-
-    const animateVideo = (timestamp: number) => {
-      animationFrame = 0;
-      if (!video.duration || !Number.isFinite(video.duration)) return;
-
-      displayedProgress += (targetProgress - displayedProgress) * 0.2;
-      if (Math.abs(targetProgress - displayedProgress) < 0.001) displayedProgress = targetProgress;
-
-      if (timestamp - lastSeekTime > 1000 / 30 || displayedProgress === targetProgress) {
-        video.currentTime = Math.min(video.duration - 0.001, displayedProgress * video.duration);
-        lastSeekTime = timestamp;
-      }
-
-      if (displayedProgress !== targetProgress) animationFrame = window.requestAnimationFrame(animateVideo);
-    };
-
-    const onMetadata = () => {
-      if (isMobile) {
-        startMobilePlayback();
-        return;
-      }
-      displayedProgress = video.currentTime / video.duration;
-      updateTarget();
-    };
-
-    const startMobilePlayback = () => {
-      if (!isMobile || reducedMotionQuery.matches) {
-        video.pause();
-        return;
-      }
-      video.loop = true;
-      void video.play().catch(() => {});
-    };
-
-    const syncPlaybackMode = () => {
-      isMobile = mobileQuery.matches;
-      if (isMobile) {
-        startMobilePlayback();
-      } else {
-        video.pause();
-        video.loop = false;
-        updateTarget();
-      }
-    };
-
-    const onMotionPreferenceChange = () => {
+    const syncPlayback = () => {
       if (reducedMotionQuery.matches) {
         video.pause();
-        if (animationFrame) window.cancelAnimationFrame(animationFrame);
-        animationFrame = 0;
-      } else if (isMobile) {
-        startMobilePlayback();
-      } else {
-        updateTarget();
+        return;
       }
+      void video.play().catch((error: unknown) => {
+        console.warn("BioCare hero video autoplay was blocked or failed:", error);
+      });
     };
 
-    video.addEventListener("loadedmetadata", onMetadata);
-    window.addEventListener("scroll", updateTarget, { passive: true });
-    window.addEventListener("resize", updateTarget, { passive: true });
-    mobileQuery.addEventListener("change", syncPlaybackMode);
-    reducedMotionQuery.addEventListener("change", onMotionPreferenceChange);
-    if (video.readyState >= HTMLMediaElement.HAVE_METADATA) {
-      if (isMobile) startMobilePlayback();
-      else onMetadata();
-    }
-
-    return () => {
-      video.removeEventListener("loadedmetadata", onMetadata);
-      window.removeEventListener("scroll", updateTarget);
-      window.removeEventListener("resize", updateTarget);
-      mobileQuery.removeEventListener("change", syncPlaybackMode);
-      reducedMotionQuery.removeEventListener("change", onMotionPreferenceChange);
-      if (animationFrame) window.cancelAnimationFrame(animationFrame);
-    };
+    syncPlayback();
+    reducedMotionQuery.addEventListener("change", syncPlayback);
+    return () => reducedMotionQuery.removeEventListener("change", syncPlayback);
   }, []);
 
   return (
     <section
-      ref={heroRef}
       id="top"
       className="relative isolate min-h-[72svh] scroll-mt-36 overflow-hidden bg-foreground md:min-h-[68svh]"
     >
@@ -359,8 +282,10 @@ function Hero() {
         ref={videoRef}
         src={heroVideo}
         poster={heroPoster}
+        autoPlay
         muted
         playsInline
+        loop
         preload="auto"
         aria-hidden="true"
         tabIndex={-1}
